@@ -81,7 +81,7 @@ func interactDoorFirstEdit() -> void:
 func interactDoorLastEdit() -> void:
 	defocusComponent()
 	focus(focused)
-	interact(%doorComplexNumberEdit.imaginaryEdit)
+	interact(%doorCopiesEdit.imaginaryEdit)
 
 func interactLockFirstEdit(index:int) -> void:
 	focusComponent(focused.locks[index])
@@ -103,7 +103,7 @@ func tabbed(numberEdit:PanelContainer) -> void:
 				if focused is KeyBulk:
 					interact(%keyCountEdit.imaginaryEdit)
 				elif focused is Door:
-					if numberEdit == %doorComplexNumberEdit.realEdit:
+					if numberEdit == %doorCopiesEdit.realEdit:
 						if len(focused.locks) > 0: interactLockLastEdit(-1)
 						else: interactDoorLastEdit()
 					elif numberEdit == %partialBlastDenominatorEdit.realEdit:
@@ -123,7 +123,7 @@ func tabbed(numberEdit:PanelContainer) -> void:
 				if focused is KeyBulk:
 					interact(%keyCountEdit.realEdit)
 				elif focused is Door:
-					if numberEdit == %doorComplexNumberEdit.imaginaryEdit:
+					if numberEdit == %doorCopiesEdit.imaginaryEdit:
 						if len(focused.locks) > 0: interactLockFirstEdit(0)
 						else: interactDoorFirstEdit()
 					elif numberEdit == %partialBlastNumeratorEdit.imaginaryEdit and componentFocused.isPartial:
@@ -148,7 +148,7 @@ func receiveKey(event:InputEvent) -> bool:
 			_: return false
 	return true
 
-func _process(_delta) -> void:
+func _process(_delta:float) -> void:
 	if focused:
 		visible = true
 		if above: position = editor.worldspaceToScreenspace(focused.position + Vector2(focused.size.x/2,0)) + Vector2(0,-8)

@@ -16,6 +16,7 @@ script = ExtResource("1_1fl8k")
 [node name="drawText" type="Label" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 0
 text = "1223"
 label_settings = SubResource("LabelSettings_n5xw7")
+horizontal_alignment = 2
+clip_text = true

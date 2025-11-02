@@ -15,18 +15,20 @@ func focus(focused:Door, new:bool, dontRedirect:bool) -> void:
 	%frozen.button_pressed = focused.frozen
 	%crumbled.button_pressed = focused.crumbled
 	%painted.button_pressed = focused.painted
+	%realInfiniteCopy.button_pressed = focused.infCopies.r.eq(1)
+	%imaginaryInfiniteCopy.button_pressed = focused.infCopies.i.eq(1)
 	if !main.componentFocused:
 		%lockSettings.visible = false
 		%doorAxialNumberEdit.visible = false
 		%doorAuraSettings.visible = focused.type != Door.TYPE.GATE
-		%doorComplexNumberEdit.visible = focused.type != Door.TYPE.GATE
+		%doorCopySettings.visible = focused.type != Door.TYPE.GATE
 		%doorColorSelector.setSelect(focused.colorSpend)
-		%doorComplexNumberEdit.setValue(focused.copies, true)
+		%doorCopiesEdit.setValue(focused.copies, true)
 		%spend.button_pressed = true
 		%blastLockSettings.visible = false
 	if main.interacted and !main.interacted.is_visible_in_tree(): main.deinteract()
-	if %doorComplexNumberEdit.visible:
-		if !main.interacted: main.interact(%doorComplexNumberEdit.realEdit)
+	if %doorCopySettings.visible:
+		if !main.interacted: main.interact(%doorCopiesEdit.realEdit)
 	elif %doorAxialNumberEdit.visible:
 		if !main.interacted: main.interact(%doorAxialNumberEdit)
 	else: main.deinteract()
@@ -46,7 +48,7 @@ func focusComponent(component:Lock, _new:bool) -> void:
 	%doorAxialNumberEdit.visible = component.type == Lock.TYPE.NORMAL or component.type == Lock.TYPE.EXACT
 	%doorAxialNumberEdit.setValue(component.count, true)
 
-	%doorComplexNumberEdit.visible = false
+	%doorCopySettings.visible = false
 	%doorAuraSettings.visible = false
 
 	%blastLockSettings.visible = component.type in [Lock.TYPE.BLAST, Lock.TYPE.ALL]
@@ -103,6 +105,8 @@ func receiveKey(event:InputEvent) -> bool:
 func changedMods() -> void:
 	%lockSettingsSep.visible = mods.active(&"C1")
 	%lockNegated.visible = mods.active(&"C1")
+	%realInfiniteCopy.visible = mods.active(&"InfCopies")
+	%imaginaryInfiniteCopy.visible = mods.active(&"InfCopies")
 	if main.componentFocused and main.componentFocused.type in [Lock.TYPE.BLAST, Lock.TYPE.ALL]:
 		main.focusComponent(main.componentFocused)
 
@@ -116,7 +120,7 @@ func _doorColorSelected(color:Game.COLOR) -> void:
 		changes.addChange(Changes.PropertyChange.new(editor.game,main.focused,&"colorSpend",color))
 	changes.bufferSave()
 
-func _doorComplexNumberSet(value:C) -> void:
+func _doorCopiesSet(value:C) -> void:
 	if main.focused is not Door: return
 	changes.addChange(Changes.PropertyChange.new(editor.game,main.focused,&"copies",value))
 	changes.bufferSave()
@@ -191,16 +195,28 @@ func _isPartialSet(value:bool) -> void:
 	changes.addChange(Changes.PropertyChange.new(editor.game,main.componentFocused,&"isPartial",value))
 	changes.bufferSave()
 
-func _blastLockSignSet(value:bool):
+func _blastLockSignSet(value:bool) -> void:
 	if main.componentFocused is not Lock: return
 	if main.componentFocused.denominator.sign() < 0 == value: return
 	changes.addChange(Changes.PropertyChange.new(editor.game,main.componentFocused,&"count",main.componentFocused.count.times(-1)))
 	changes.addChange(Changes.PropertyChange.new(editor.game,main.componentFocused,&"denominator",main.componentFocused.denominator.times(-1)))
 	changes.bufferSave()
 
-func _blastLockAxisSet(value:bool):
+func _blastLockAxisSet(value:bool) -> void:
 	if main.componentFocused is not Lock: return
 	if main.componentFocused.denominator.isNonzeroImag() == value: return
 	changes.addChange(Changes.PropertyChange.new(editor.game,main.componentFocused,&"count",main.componentFocused.count.times(C.I if value else C.nI)))
 	changes.addChange(Changes.PropertyChange.new(editor.game,main.componentFocused,&"denominator",main.componentFocused.denominator.times(C.I if value else C.nI)))
 	changes.bufferSave()
+
+func _doorRealInfiniteSet(value:bool) -> void:
+	if main.focused is not Door: return
+	changes.addChange(Changes.PropertyChange.new(editor.game,main.focused,&"infCopies",C.new(int(value), main.focused.infCopies.i)))
+	changes.bufferSave()
+	print(main.focused.infCopies)
+
+func _doorImaginaryInfiniteSet(value:bool) -> void:
+	if main.focused is not Door: return
+	changes.addChange(Changes.PropertyChange.new(editor.game,main.focused,&"infCopies",C.new(main.focused.infCopies.r, int(value))))
+	changes.bufferSave()
+	print(main.focused.infCopies)

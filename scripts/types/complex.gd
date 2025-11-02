@@ -18,12 +18,17 @@ func _init(_r:Variant,_i:Variant=0) -> void:
 		i = Q.new(_i)
 
 func _to_string() -> String:
+	return strWithInf(C.ZERO)
+
+func strWithInf(infAxes:C) -> String:
 	var rComponent:String
 	var iComponent:String = ""
-	if r.neq(0): rComponent = str(r)
+	if infAxes.r.neq(0): rComponent = "-~" if r.lt(0) else "~"
+	elif r.neq(0): rComponent = str(r)
 	if i.neq(0):
 		if i.gt(0) and r.neq(0): iComponent += "+"
-		iComponent += str(i) + "i"
+		if infAxes.i.neq(0): iComponent += "-~i" if i.lt(0) else "~i"
+		else: iComponent += str(i) + "i"
 	if r.eq(0) and i.eq(0): return "0"
 	return rComponent + iComponent
 
@@ -38,12 +43,12 @@ func eq(realOrComplex:Variant, imaginary:Variant=Q.new(0)) -> bool:
 func neq(realOrComplex:Variant, imaginary:=Q.new(0)) -> bool: return !eq(realOrComplex, imaginary)
 
 func sign() -> int: return r.sign() + i.sign()
+func abs() -> Q: return r.abs().plus(i.abs())
 func axis() -> C: return C.new(r.sign(), i.sign())
 func axibs() -> C: return C.new(r.abs().sign(), i.abs().sign())
+func acrabs() -> C: return C.new(r.abs(), i.abs())
 
 func reduce() -> Q: return r.plus(i)
-
-func abs() -> Q: return r.abs().plus(i.abs())
 
 func isNonzeroReal() -> bool: return r.neq(0) and i.eq(0)
 func isNonzeroImag() -> bool: return r.eq(0) and i.neq(0)

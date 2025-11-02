@@ -18,8 +18,6 @@ func setValue(_value:C, manual:bool=false) -> void:
 	value = _value
 	if bufferedSign.neq(1) and value.neq(0):
 		bufferedSign = C.ONE
-	if !value.abs().lt(1e17): value = value.axis().times(99999999999999999)
-	if !value.abs().gt(-1e17): value = value.axis().times(99999999999999999)
 	if bufferedSign.eq(-1): %drawText.text = "-0"
 	elif bufferedSign.eq(0,1): %drawText.text = "0i"
 	elif bufferedSign.eq(0,-1): %drawText.text = "-0i"

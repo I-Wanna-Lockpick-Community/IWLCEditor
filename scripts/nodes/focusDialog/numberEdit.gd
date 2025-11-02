@@ -20,8 +20,6 @@ func setValue(_value:Q, manual:bool=false) -> void:
 	value = _value
 	if bufferedNegative and value.n != 0:
 		bufferedNegative = false
-	if value.n >= 1e8: value.n = 99999999
-	if value.n <= -1e7: value.n = -9999999
 	if bufferedNegative: %drawText.text = "-0"
 	else: %drawText.text = str(value.n)
 	if !manual: valueSet.emit(value.n)

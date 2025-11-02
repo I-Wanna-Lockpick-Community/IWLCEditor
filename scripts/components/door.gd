@@ -53,12 +53,13 @@ const CREATE_PARAMETERS:Array[StringName] = [
 ]
 const EDITOR_PROPERTIES:Array[StringName] = [
 	&"id", &"position", &"size",
-	&"colorSpend", &"copies", &"type",
+	&"colorSpend", &"copies", &"infCopies", &"type",
 	&"frozen", &"crumbled", &"painted"
 ]
 
 var colorSpend:Game.COLOR = Game.COLOR.WHITE
 var copies:C = C.ONE
+var infCopies:C = C.ZERO # axes with infinite copies
 var type:TYPE = TYPE.SIMPLE
 var frozen:bool = false
 var crumbled:bool = false
@@ -194,9 +195,9 @@ func _draw() -> void:
 	elif animState == ANIM_STATE.RELOCK: RenderingServer.canvas_item_add_rect(drawCopies,rect,Color(Color.WHITE,animAlpha)) # just to be on top of everything else
 	# copies
 	if game.playState == Game.PLAY_STATE.EDIT:
-		if !copies.eq(1): TextDraw.outlinedCentered(Game.FKEYX,drawCopies,"×"+str(copies),COPIES_COLOR,COPIES_OUTLINE_COLOR,20,Vector2(size.x/2,-8))
+		if copies.neq(1) or infCopies.neq(0): TextDraw.outlinedCentered(Game.FKEYX,drawCopies,"×"+copies.strWithInf(infCopies),COPIES_COLOR,COPIES_OUTLINE_COLOR,20,Vector2(size.x/2,-8))
 	else:
-		if !gameCopies.eq(1): TextDraw.outlinedCentered(Game.FKEYX,drawCopies,"×"+str(gameCopies),COPIES_COLOR,COPIES_OUTLINE_COLOR,20,Vector2(size.x/2,-8))
+		if gameCopies.neq(1) or infCopies.neq(0): TextDraw.outlinedCentered(Game.FKEYX,drawCopies,"×"+gameCopies.strWithInf(infCopies),COPIES_COLOR,COPIES_OUTLINE_COLOR,20,Vector2(size.x/2,-8))
 
 func receiveMouseInput(event:InputEventMouse) -> bool:
 	# resizing
@@ -239,6 +240,9 @@ func propertyChangedInit(property:StringName) -> void:
 				changes.addChange(Changes.PropertyChange.new(game,self,&"crumbled",false))
 				changes.addChange(Changes.PropertyChange.new(game,self,&"painted",false))
 	if property == &"size" and type == TYPE.SIMPLE and len(locks)>0: locks[0]._simpleDoorUpdate() # ghhghghhh TODO: figure this out
+	if property in [&"copies", &"infCopies"] and copies.acrabs().across(infCopies).neq(infCopies):
+		if infCopies.r.eq(1) and copies.r.abs().neq(1): changes.addChange(Changes.PropertyChange.new(game,self,&"copies",C.new(1 if copies.r.eq(0) else copies.r.sign(),copies.i)))
+		if infCopies.i.eq(1) and copies.i.abs().neq(1): changes.addChange(Changes.PropertyChange.new(game,self,&"copies",C.new(copies.r,1 if copies.i.eq(0) else copies.i.sign())))
 
 func propertyChangedDo(property:StringName) -> void:
 	super(property)
@@ -394,7 +398,7 @@ func tryOpen(player:Player) -> void:
 		cost = cost.plus(lock.getCost(player))
 	
 	gameChanges.addChange(GameChanges.KeyChange.new(game, colorAfterAurabreaker(), player.key[colorAfterAurabreaker()].minus(cost)))
-	gameChanges.addChange(GameChanges.PropertyChange.new(game, self, &"gameCopies", gameCopies.minus(ipow())))
+	gameChanges.addChange(GameChanges.PropertyChange.new(game, self, &"gameCopies", gameCopies.minus(ipow().across(C.new(1,1).minus(infCopies)))))
 	
 	if gameFrozen or gameCrumbled or gamePainted: AudioManager.play(preload("res://resources/sounds/door/deaura.wav"))
 	else:
@@ -415,7 +419,7 @@ func tryMasterOpen(player:Player) -> bool:
 	if hasColor(Game.COLOR.PURE): return false
 
 	var openedForwards:bool = gameCopies.across(player.masterMode).sign() > 0
-	gameChanges.addChange(GameChanges.PropertyChange.new(game, self, &"gameCopies", gameCopies.minus(player.masterMode)))
+	gameChanges.addChange(GameChanges.PropertyChange.new(game, self, &"gameCopies", gameCopies.minus(player.masterMode.across(C.new(1,1).minus(infCopies)))))
 	gameChanges.addChange(GameChanges.KeyChange.new(game, Game.COLOR.MASTER, player.key[Game.COLOR.MASTER].minus(player.masterMode)))
 	
 	if openedForwards:
@@ -458,7 +462,7 @@ func tryDynamiteOpen(player:Player) -> bool:
 	var openedForwards:bool
 	var openedBackwards:bool
 
-	if player.key[Game.COLOR.DYNAMITE].across(gameCopies.axis()).minus(gameCopies.abs()).nonNegative():
+	if player.key[Game.COLOR.DYNAMITE].across(gameCopies.axis()).minus(gameCopies.abs()).nonNegative() and infCopies.eq(0):
 		# if the door can open, open it
 		gameChanges.addChange(GameChanges.KeyChange.new(game, Game.COLOR.DYNAMITE, player.key[Game.COLOR.DYNAMITE].minus(gameCopies)))
 		gameChanges.addChange(GameChanges.PropertyChange.new(game, self, &"gameCopies", C.ZERO))
@@ -468,7 +472,7 @@ func tryDynamiteOpen(player:Player) -> bool:
 		openedForwards = player.key[Game.COLOR.DYNAMITE].across(gameCopies.axis()).hasPositive()
 		openedBackwards = player.key[Game.COLOR.DYNAMITE].across(gameCopies.axis()).hasNonPositive()
 
-		gameChanges.addChange(GameChanges.PropertyChange.new(game, self, &"gameCopies", gameCopies.minus(player.key[Game.COLOR.DYNAMITE])))
+		gameChanges.addChange(GameChanges.PropertyChange.new(game, self, &"gameCopies", gameCopies.minus(player.key[Game.COLOR.DYNAMITE].across(C.new(1,1).minus(infCopies)))))
 		gameChanges.addChange(GameChanges.KeyChange.new(game, Game.COLOR.DYNAMITE, C.ZERO))
 
 	if openedForwards:
