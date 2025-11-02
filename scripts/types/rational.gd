@@ -26,5 +26,10 @@ func plus(number) -> Q: return Q.new(n+Q.new(number).n)
 func minus(number) -> Q: return Q.new(n-Q.new(number).n)
 func times(number) -> Q: return Q.new(n*Q.new(number).n)
 
-func divint(number:int) -> Q:
-	@warning_ignore("integer_division") return Q.new(n/number)
+func divint(number) -> Q:
+	@warning_ignore("integer_division") return Q.new(n/Q.new(number).n)
+
+func squared() -> Q: return self.times(self)
+
+func divides(number) -> bool:
+	return n % Q.new(number).n == 0

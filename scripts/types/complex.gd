@@ -47,6 +47,7 @@ func abs() -> Q: return r.abs().plus(i.abs())
 
 func isNonzeroReal() -> bool: return r.neq(0) and i.eq(0)
 func isNonzeroImag() -> bool: return r.eq(0) and i.neq(0)
+func isComplex() -> bool: return (r.neq(0) == i.neq(0)) and neq(0)
 
 func plus(number) -> C: return C.new(r.plus(C.new(number).r), i.plus(C.new(number).i))
 func minus(number) -> C: return C.new(r.minus(C.new(number).r), i.minus(C.new(number).i))
@@ -57,7 +58,17 @@ func across(number) -> C:
 	var _n:C=C.new(number)
 	return C.new(r.times(_n.r),i.times(_n.i))
 
-func divint(number:int) -> C: return C.new(r.divint(number),i.divint(number))
+func divint(number) -> C: return C.new(r.divint(number),i.divint(number))
+func over(number) -> C:
+	var a:Q = r
+	var b:Q = i
+	var c:Q = C.new(number).r
+	var d:Q = C.new(number).i
+	return C.new(a.times(c).plus(b.times(d)), b.times(c).minus(a.times(d))).divint(c.squared().plus(d.squared()))
+func modulo(number) -> C:
+	return minus(over(number).times(number))
+
+func squared() -> C: return times(self)
 
 func positive() -> bool: return r.gt(0) and i.gt(0)
 func negative() -> bool: return r.lt(0) and i.lt(0)
@@ -67,3 +78,10 @@ func hasPositive() -> bool: return r.gt(0) or i.gt(0)
 func hasNegative() -> bool: return r.lt(0) or i.lt(0)
 func hasNonPositive() -> bool: return !r.lt(0) or !i.lt(0)
 func hasNonNegative() -> bool: return !r.lt(0) or !i.lt(0)
+
+func toIpow() -> int:
+	if eq(1): return 0
+	elif eq(C.I): return 1
+	elif eq(-1): return 2
+	elif eq(C.nI): return 3
+	else: assert(false); return 0

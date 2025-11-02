@@ -325,6 +325,7 @@ func playTest(spawn:PlayerSpawn) -> void:
 	goldIndexFloat = 0
 
 	editor.multiselect.deselect()
+	editor.focusDialog.defocusComponent()
 	editor.focusDialog.defocus()
 	editor.componentDragged = null
 	changes.bufferSave()

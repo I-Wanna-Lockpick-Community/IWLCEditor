@@ -14,7 +14,9 @@ script = ExtResource("2_0uk8m")
 
 [node name="realEdit" parent="." instance=ExtResource("3_dqp57")]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="plus" type="TextureRect" parent="."]
 layout_mode = 2
@@ -23,7 +25,9 @@ stretch_mode = 3
 
 [node name="imaginaryEdit" parent="." instance=ExtResource("3_dqp57")]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="plus2" type="TextureRect" parent="."]
 layout_mode = 2

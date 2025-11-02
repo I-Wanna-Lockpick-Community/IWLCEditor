@@ -9,15 +9,14 @@ signal valueSet(value:C)
 
 var value:C
 
+func _ready() -> void:
+	realEdit.purpose = NumberEdit.PURPOSE.REAL
+	imaginaryEdit.purpose = NumberEdit.PURPOSE.IMAGINARY
+
 func setValue(_value:C,manual:bool=false) -> void:
 	value = _value
 	realEdit.setValue(value.r, true)
 	imaginaryEdit.setValue(value.i, true)
-
-	realEdit.nextEdit = imaginaryEdit
-	realEdit.purpose = NumberEdit.PURPOSE.REAL
-	imaginaryEdit.nextEdit = realEdit
-	imaginaryEdit.purpose = NumberEdit.PURPOSE.IMAGINARY
 
 	if !manual: valueSet.emit(value)
 

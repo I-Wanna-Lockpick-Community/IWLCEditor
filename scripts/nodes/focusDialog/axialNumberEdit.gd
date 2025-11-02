@@ -2,7 +2,6 @@ extends PanelContainer
 class_name AxialNumberEdit
 
 @onready var editor:Editor = get_node("/root/editor")
-var nextEdit:NumberEdit
 
 signal valueSet(value:C)
 
@@ -59,7 +58,7 @@ func receiveKey(key:InputEventKey):
 				elif (value.i.gt(0) and value.i.lt(10)): bufferedSign = C.I
 				elif (value.i.gt(-10) and value.i.lt(0)): bufferedSign = C.nI
 				if value.eq(0): bufferedSign = C.ONE
-				@warning_ignore("integer_division") setValue(C.new(value.divint(10)))
+				setValue(C.new(value.divint(10)))
 			deNew()
 		KEY_I:
 			if value.eq(0): bufferedSign = bufferedSign.times(C.new(0,-1 if Input.is_key_pressed(KEY_SHIFT) else 1))

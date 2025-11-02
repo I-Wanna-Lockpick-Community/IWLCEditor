@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://8bth374yqwpe"]
+[gd_scene load_steps=42 format=3 uid="uid://8bth374yqwpe"]
 
 [ext_resource type="Theme" uid="uid://bvfthh0vm4fbp" path="res://resources/uiTheme.tres" id="1_eqegh"]
 [ext_resource type="Script" uid="uid://dm8t82nhqkdlc" path="res://scripts/singletons/focusDialog/focusDialog.gd" id="2_k8bto"]
@@ -21,7 +21,6 @@
 [ext_resource type="Texture2D" uid="uid://blvji7kl64sbd" path="res://assets/ui/focusDialog/lockHandler/colorLink.png" id="17_5vlab"]
 [ext_resource type="Script" uid="uid://c71qe58ht0isn" path="res://scripts/nodes/focusDialog/configurationSelector.gd" id="17_cu8b0"]
 [ext_resource type="Texture2D" uid="uid://cc64xnxuowxqi" path="res://assets/game/door/aura/frozen1x1.png" id="19_vn3na"]
-[ext_resource type="Script" uid="uid://ciukhxsx2xmxr" path="res://scripts/nodes/focusDialog/lockSettings.gd" id="20_di8ev"]
 [ext_resource type="PackedScene" uid="uid://sm362bc2r4fm" path="res://scenes/numberEdit.tscn" id="20_gx4cd"]
 [ext_resource type="Texture2D" uid="uid://cpqsyj5t7vigm" path="res://assets/game/door/aura/crumbled1x1.png" id="20_vn3na"]
 [ext_resource type="Texture2D" uid="uid://bar7rrr1p3a1h" path="res://assets/ui/focusDialog/lockBooleans/negated.png" id="21_bfxh1"]
@@ -34,12 +33,21 @@
 [ext_resource type="Script" uid="uid://ckcofkmbukj5o" path="res://scripts/nodes/focusDialog/keyCounterWidthSelector.gd" id="25_7tfe2"]
 [ext_resource type="Script" uid="uid://bg8oswa2bhdsv" path="res://scripts/nodes/focusDialog/goalTypeSelector.gd" id="26_1rcup"]
 [ext_resource type="Script" uid="uid://ofo6shxaymkl" path="res://scripts/singletons/focusDialog/playerDialog.gd" id="28_4qfwo"]
+[ext_resource type="Texture2D" uid="uid://cln0osp8um3ti" path="res://assets/ui/focusDialog/numberEdit/partialBlast.png" id="29_di8ev"]
 [ext_resource type="Script" uid="uid://dihumic7k5rec" path="res://scripts/singletons/focusDialog/keyCounterDialog.gd" id="30_bfxh1"]
 [ext_resource type="Script" uid="uid://b0shfyjnfk7ih" path="res://scripts/singletons/focusDialog/goalDialog.gd" id="33_di8ev"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_oii3e"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_e2stj"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_di8ev"]
+content_margin_left = 4.0
+content_margin_right = 4.0
+color = Color(0.8352941, 0.8352941, 0.8352941, 1)
+grow_begin = 2.0
+grow_end = 2.0
+thickness = 2
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_h1xy2"]
 
@@ -60,6 +68,7 @@ anchors_preset = 0
 script = ExtResource("3_b5h7e")
 
 [node name="c" type="PanelContainer" parent="keyDialog"]
+custom_minimum_size = Vector2(174, 0)
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -122,9 +131,8 @@ texture_pressed = ExtResource("8_w3a3f")
 texture_hover = ExtResource("9_4nd11")
 stretch_mode = 0
 
-[node name="doorDialog" type="Control" parent="."]
+[node name="doorDialog" type="Control" parent="." groups=["modUI"]]
 unique_name_in_owner = true
-visible = false
 anchors_preset = 0
 script = ExtResource("11_drywk")
 
@@ -236,11 +244,10 @@ size_flags_horizontal = 4
 script = ExtResource("3_wmate")
 metadata/_custom_type_script = "uid://c70juj2p5s6yd"
 
-[node name="lockSettings" type="HBoxContainer" parent="doorDialog/c/lock/c/c" groups=["modUI"]]
+[node name="lockSettings" type="HBoxContainer" parent="doorDialog/c/lock/c/c"]
 unique_name_in_owner = true
 layout_mode = 2
 alignment = 1
-script = ExtResource("20_di8ev")
 
 [node name="lockTypeSelector" type="GridContainer" parent="doorDialog/c/lock/c/c/lockSettings" groups=["modUI"]]
 unique_name_in_owner = true
@@ -296,24 +303,64 @@ layout_mode = 2
 size_flags_horizontal = 4
 script = ExtResource("21_k4n5y")
 
-[node name="blastLockSettings" type="HBoxContainer" parent="doorDialog/c/lock/c/c"]
+[node name="blastLockSettings" type="VBoxContainer" parent="doorDialog/c/lock/c/c"]
 unique_name_in_owner = true
 layout_mode = 2
 alignment = 1
 
-[node name="blastLockSign" type="Button" parent="doorDialog/c/lock/c/c/blastLockSettings"]
+[node name="partialBlastSettings" type="VBoxContainer" parent="doorDialog/c/lock/c/c/blastLockSettings"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="partialBlastNumeratorEdit" parent="doorDialog/c/lock/c/c/blastLockSettings/partialBlastSettings" instance=ExtResource("5_qjvko")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="partialBlastSep" type="HSeparator" parent="doorDialog/c/lock/c/c/blastLockSettings/partialBlastSettings"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+theme_override_styles/separator = SubResource("StyleBoxLine_di8ev")
+
+[node name="c" type="HBoxContainer" parent="doorDialog/c/lock/c/c/blastLockSettings"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="isPartial" type="Button" parent="doorDialog/c/lock/c/c/blastLockSettings/c"]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+icon = ExtResource("29_di8ev")
+
+[node name="discreteBlastSettings" type="HBoxContainer" parent="doorDialog/c/lock/c/c/blastLockSettings/c"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="blastLockSign" type="Button" parent="doorDialog/c/lock/c/c/blastLockSettings/c/discreteBlastSettings"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"SelectorButton"
 toggle_mode = true
 icon = ExtResource("22_hh12n")
 
-[node name="blastLockAxis" type="Button" parent="doorDialog/c/lock/c/c/blastLockSettings"]
+[node name="blastLockAxis" type="Button" parent="doorDialog/c/lock/c/c/blastLockSettings/c/discreteBlastSettings"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"SelectorButton"
 toggle_mode = true
 icon = ExtResource("23_h1xy2")
+
+[node name="partialDenominator" type="HBoxContainer" parent="doorDialog/c/lock/c/c/blastLockSettings/c"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="partialBlastDenominatorEdit" parent="doorDialog/c/lock/c/c/blastLockSettings/c/partialDenominator" instance=ExtResource("5_qjvko")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="playerDialog" type="Control" parent="."]
 unique_name_in_owner = true
@@ -471,8 +518,11 @@ default_color = Color(0.8352941, 0.8352941, 0.8352941, 1)
 [connection signal="toggled" from="doorDialog/c/lock/c/c/doorAuraSettings/painted" to="doorDialog" method="_paintedSet"]
 [connection signal="valueSet" from="doorDialog/c/lock/c/c/doorComplexNumberEdit" to="doorDialog" method="_doorComplexNumberSet"]
 [connection signal="valueSet" from="doorDialog/c/lock/c/c/doorAxialNumberEdit" to="doorDialog" method="_doorAxialNumberSet"]
-[connection signal="pressed" from="doorDialog/c/lock/c/c/blastLockSettings/blastLockSign" to="doorDialog" method="_blastLockSet"]
-[connection signal="pressed" from="doorDialog/c/lock/c/c/blastLockSettings/blastLockAxis" to="doorDialog" method="_blastLockSet"]
+[connection signal="valueSet" from="doorDialog/c/lock/c/c/blastLockSettings/partialBlastSettings/partialBlastNumeratorEdit" to="doorDialog" method="partialBlastNumeratorSet"]
+[connection signal="toggled" from="doorDialog/c/lock/c/c/blastLockSettings/c/isPartial" to="doorDialog" method="_isPartialSet"]
+[connection signal="toggled" from="doorDialog/c/lock/c/c/blastLockSettings/c/discreteBlastSettings/blastLockSign" to="doorDialog" method="_blastLockSignSet"]
+[connection signal="toggled" from="doorDialog/c/lock/c/c/blastLockSettings/c/discreteBlastSettings/blastLockAxis" to="doorDialog" method="_blastLockAxisSet"]
+[connection signal="valueSet" from="doorDialog/c/lock/c/c/blastLockSettings/c/partialDenominator/partialBlastDenominatorEdit" to="doorDialog" method="partialBlastDenominatorSet"]
 [connection signal="pressed" from="playerDialog/c/c/c/playTest" to="playerDialog" method="_playTest"]
 [connection signal="pressed" from="playerDialog/c/c/c/levelStart" to="playerDialog" method="_setLevelStart"]
 [connection signal="pressed" from="playerDialog/c/c/c/savestate" to="playerDialog" method="_setSavestate"]

@@ -4,7 +4,6 @@ class_name NumberEdit
 enum PURPOSE {SINGLE, REAL, IMAGINARY, AXIAL}
 
 @onready var editor:Editor = get_node("/root/editor")
-var nextEdit:NumberEdit
 
 signal valueSet(value:Q)
 

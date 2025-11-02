@@ -83,24 +83,15 @@ const FRAME_MAIN:Texture2D = preload("res://assets/game/lock/frame/main.png")
 const FRAME_DARK:Texture2D = preload("res://assets/game/lock/frame/dark.png")
 
 func getFrameHighColor() -> Color:
-	if effectiveCount().sign() == 0:
-		if negated: return Color.from_hsv(1-game.complexViewHue,1,0.7450980392)
-		else: return Color.from_hsv(game.complexViewHue,0.4901960784,1)
-	elif effectiveCount().sign() < 0: return Color("#14202c") if negated else Color("#ebdfd3")
+	if isNegative(): return Color("#14202c") if negated else Color("#ebdfd3")
 	else: return Color("#7b9fc3") if negated else Color("#84603c")
 
 func getFrameMainColor() -> Color:
-	if effectiveCount().sign() == 0:
-		if negated: return Color.from_hsv(1-game.complexViewHue,0.7058823529,0.9019607843)
-		else: return Color.from_hsv(game.complexViewHue,0.7058823529,0.9019607843)
-	elif effectiveCount().sign() < 0: return Color("#274058") if negated else Color("#d8bfa7")
+	if isNegative(): return Color("#274058") if negated else Color("#d8bfa7")
 	else: return Color("#a7bfd8") if negated else Color("#584027")
 
 func getFrameDarkColor() -> Color:
-	if effectiveCount().sign() == 0:
-		if negated: return Color.from_hsv(1-game.complexViewHue,0.4901960784,1)
-		else: return Color.from_hsv(game.complexViewHue,1,0.7450980392)
-	elif effectiveCount().sign() < 0: return Color("#3b6084") if negated else Color("#c49f7b")
+	if isNegative(): return Color("#3b6084") if negated else Color("#c49f7b")
 	else: return Color("#d3dfeb") if negated else Color("#42301d")
 
 const SYMBOL_NORMAL = preload("res://assets/game/lock/symbols/normal.png")
@@ -177,7 +168,7 @@ const CREATE_PARAMETERS:Array[StringName] = [
 ]
 const EDITOR_PROPERTIES:Array[StringName] = [
 	&"id", &"position", &"size",
-	&"parentId", &"color", &"type", &"configuration", &"sizeType", &"count", &"negated",
+	&"parentId", &"color", &"type", &"configuration", &"sizeType", &"count", &"isPartial", &"denominator", &"negated",
 	&"index" # implcit
 ]
 
@@ -188,6 +179,8 @@ var type:TYPE = TYPE.NORMAL
 var configuration:CONFIGURATION = CONFIGURATION.spr1A
 var sizeType:SIZE_TYPE = SIZE_TYPE.AnyS
 var count:C = C.ONE
+var isPartial:bool = false # for partial blast
+var denominator:C = C.ONE # for partial blast
 var negated:bool = false
 var index:int
 
@@ -197,7 +190,7 @@ var drawMain:RID
 var drawConfiguration:RID
 
 func getConfigurationColor() -> Color:
-	if effectiveCount().sign() < 0: return Color("#ebdfd3")
+	if isNegative(): return Color("#ebdfd3")
 	else: return Color("#2c2014")
 
 func _init(_parent:Door, _index:int) -> void:
@@ -309,13 +302,42 @@ func _draw() -> void:
 				if symbolLast: Game.FTALK.draw_string(drawMain,Vector2(startX,startY)-getOffset(),string,HORIZONTAL_ALIGNMENT_LEFT,-1,12,getConfigurationColor())
 				else: Game.FTALK.draw_string(drawMain,Vector2(startX+lockOffsetX,startY)-getOffset(),string,HORIZONTAL_ALIGNMENT_LEFT,-1,12,getConfigurationColor())
 			TYPE.BLANK: pass # nothing really
-			TYPE.BLAST:
-				var symbolRect:Rect2 = Rect2(Vector2((size-SYMBOL_SIZE)/2)-getOffset(),SYMBOL_SIZE)
-				if effectiveCount().isNonzeroReal(): RenderingServer.canvas_item_add_texture_rect(drawMain,symbolRect,SYMBOL_BLAST,false,getConfigurationColor())
-				else: RenderingServer.canvas_item_add_texture_rect(drawMain,symbolRect,SYMBOL_BLASTI,false,getConfigurationColor())
-			TYPE.ALL:
-				var symbolRect:Rect2 = Rect2(Vector2((size-SYMBOL_SIZE)/2)-getOffset(),SYMBOL_SIZE)
-				RenderingServer.canvas_item_add_texture_rect(drawMain,symbolRect,SYMBOL_ALL,false,getConfigurationColor())
+			TYPE.BLAST, TYPE.ALL:
+				var numerator:String
+				var ipow:int = 0
+				if denominator.isComplex() or denominator.eq(0) or type == TYPE.ALL: numerator = str(count)
+				else:
+					numerator = str(count.over(denominator.axis()))
+					ipow = denominator.axis().toIpow()
+				if numerator == "1": numerator = ""
+				
+				const symbolOffsetX:float = 10
+				var strWidth:float = Game.FTALK.get_string_size(numerator,HORIZONTAL_ALIGNMENT_LEFT,-1,12).x + symbolOffsetX
+				var startX:int = round((size.x - strWidth)/2)
+				var startY:int = round((size.y+14)/2)
+				
+				if isPartial:
+					var denom:String
+					if !denominator.isComplex(): denom = str(denominator.abs())
+					else: denom = str(denominator)
+					var denomWidth:float = Game.FTALK.get_string_size(denom,HORIZONTAL_ALIGNMENT_LEFT,-1,12).x
+					var denomStartX = round((size.x - denomWidth)/2)
+					var denomStartY = startY + 10
+					startY -= 10
+					Game.FTALK.draw_string(drawMain,Vector2(denomStartX, denomStartY)-getOffset(),denom,HORIZONTAL_ALIGNMENT_LEFT,-1,12,getConfigurationColor())
+					
+					var lineWidth:float = max(strWidth,denomWidth)
+					RenderingServer.canvas_item_add_rect(drawMain,Rect2(Vector2(round((size.x - lineWidth)/2),startY+2)-getOffset(),Vector2(lineWidth,2)),getConfigurationColor())
+
+				Game.FTALK.draw_string(drawMain,Vector2(startX, startY)-getOffset(),numerator,HORIZONTAL_ALIGNMENT_LEFT,-1,12,getConfigurationColor())
+
+				var symbolRect:Rect2 = Rect2(Vector2(startX+strWidth-symbolOffsetX/2,startY-7)-SYMBOL_SIZE/2-getOffset(),Vector2(32,32))
+				var symbol:Texture2D
+				match ipow:
+					0, 2: symbol = SYMBOL_BLAST
+					1, 3: symbol = SYMBOL_BLASTI
+				if type == TYPE.ALL: symbol = SYMBOL_ALL
+				RenderingServer.canvas_item_add_texture_rect(drawMain,symbolRect,symbol,false,getConfigurationColor())
 	else: RenderingServer.canvas_item_add_texture_rect(drawConfiguration,rect,getPredefinedLockSprite(),false,getConfigurationColor())
 
 func getDrawPosition() -> Vector2: return position + parent.position - getOffset()
@@ -376,7 +398,6 @@ func _setType(newType:TYPE):
 	changes.addChange(Changes.PropertyChange.new(game,self,&"type",newType))
 	if type == TYPE.BLANK:
 		changes.addChange(Changes.PropertyChange.new(game,self,&"count",C.ONE))
-		parent.queue_redraw()
 
 func receiveMouseInput(event:InputEventMouse) -> bool:
 	# resizing
@@ -416,20 +437,29 @@ func propertyChangedInit(property:StringName) -> void:
 	if parent.type != Door.TYPE.SIMPLE:
 		if property == &"size": _comboDoorSizeChanged()
 	if property in [&"count", &"sizeType", &"type"]: _setAutoConfiguration()
+	
 	if property == &"type":
-		if type in [TYPE.BLANK, TYPE.ALL] and count.neq(1):
+		if (type == TYPE.BLANK or (type == TYPE.ALL and !mods.active(&"C3"))) and count.neq(1):
 			changes.addChange(Changes.PropertyChange.new(game,self,&"count",C.ONE))
-		if type == TYPE.BLAST and (count.neq(count.axis()) or count.eq(0)):
-			changes.addChange(Changes.PropertyChange.new(game,self,&"count",C.ONE if count.eq(0) else count.axis()))
+		if type == TYPE.BLAST:
+			if (count.abs().neq(1)) and !mods.active(&"C3"): changes.addChange(Changes.PropertyChange.new(game,self,&"count",C.ONE if count.eq(0) else count.axis()))
+		elif type == TYPE.ALL:
+			if !isPartial and denominator.neq(1): changes.addChange(Changes.PropertyChange.new(game,self,&"denominator",C.ONE))
+		else:
+			if denominator.neq(1): changes.addChange(Changes.PropertyChange.new(game,self,&"denominator",C.ONE))
+			if isPartial: changes.addChange(Changes.PropertyChange.new(game,self,&"isPartial",false))
+
 	if property in [&"color", &"type"] and editor.focusDialog.focused == parent: editor.focusDialog.doorDialog.lockHandler.redrawButton(index)
+	
+	if property == &"isPartial" and !isPartial:
+		changes.addChange(Changes.PropertyChange.new(game,self,&"denominator", C.ONE if count.isComplex() or count.eq(0) or type == TYPE.ALL else count.axis()))
+
+func propertyChangedDo(property:StringName) -> void:
+	if property in [&"count", &"denominator"]: parent.queue_redraw()
 
 # ==== PLAY ==== #
 var glitchMimic:Game.COLOR = Game.COLOR.GLITCH
 var curseGlitchMimic:Game.COLOR = Game.COLOR.GLITCH
-
-func _process(_delta:float):
-	if count.sign() == 0:
-		queue_redraw()
 
 func stop() -> void:
 	glitchMimic = Game.COLOR.GLITCH
@@ -458,23 +488,41 @@ func effectiveConfiguration() -> CONFIGURATION:
 
 func canOpen(player:Player) -> bool:
 	var can:bool = true
+	var keyCount:C = player.key[colorAfterAurabreaker()]
 	match type:
-		TYPE.NORMAL: can = !player.key[colorAfterAurabreaker()].across(effectiveCount().axis()).reduce().lt(effectiveCount().abs())
-		TYPE.BLANK: can = player.key[colorAfterAurabreaker()].eq(0)
+		TYPE.NORMAL: can = !keyCount.across(effectiveCount().axis()).reduce().lt(effectiveCount().abs())
+		TYPE.BLANK: can = keyCount.eq(0)
 		TYPE.BLAST:
-			can = player.key[colorAfterAurabreaker()].axis().across(effectiveCount().axis()).sign() > 0
-		TYPE.ALL: can = player.key[colorAfterAurabreaker()].neq(0)
-		TYPE.EXACT: can = player.key[colorAfterAurabreaker()].across(effectiveCount().axibs()).eq(effectiveCount())
+			if effectiveDenominator().eq(0): can = false
+			elif effectiveDenominator().r.neq(0) and !player.key[colorAfterAurabreaker()].r.times(effectiveDenominator().r).gt(0): can = false
+			elif effectiveDenominator().i.neq(0) and !player.key[colorAfterAurabreaker()].i.times(effectiveDenominator().i).gt(0): can = false
+			elif isPartial:
+				if effectiveDenominator().r.neq(0) and !player.key[colorAfterAurabreaker()].r.divides(effectiveDenominator().r): can = false
+				elif effectiveDenominator().i.neq(0) and !player.key[colorAfterAurabreaker()].i.divides(effectiveDenominator().i): can = false
+		TYPE.ALL:
+			if effectiveDenominator().eq(0): can = false
+			elif keyCount.eq(0): can = false
+			elif isPartial:
+				if keyCount.modulo(effectiveDenominator()).neq(0): can = false
+		TYPE.EXACT: can = keyCount.across(effectiveCount().axibs()).eq(effectiveCount())
 	return can != negated
 
 func getCost(player:Player, ipow:C=parent.ipow()) -> C:
 	var cost:C = C.ZERO
 	match type:
 		TYPE.NORMAL, TYPE.EXACT: cost = effectiveCount(ipow)
-		TYPE.BLAST: cost = player.key[colorAfterAurabreaker()].across(effectiveCount(ipow).axibs())
-		TYPE.ALL: cost = player.key[colorAfterAurabreaker()]
+		TYPE.BLAST:
+			if effectiveDenominator(ipow).neq(0): cost = player.key[colorAfterAurabreaker()].across(effectiveDenominator(ipow).axibs()).times(effectiveCount(ipow)).over(effectiveDenominator(ipow))
+		TYPE.ALL: if effectiveDenominator(ipow).neq(0): cost = player.key[colorAfterAurabreaker()].times(effectiveCount(ipow)).over(effectiveDenominator(ipow))
 	if negated: return cost.times(-1)
 	return cost
 
 func effectiveCount(ipow:C=parent.ipow()) -> C:
 	return count.times(ipow)
+
+func effectiveDenominator(ipow:C=parent.ipow()) -> C:
+	return denominator.times(ipow)
+
+func isNegative() -> bool:
+	if type == TYPE.ALL: return false
+	return (effectiveDenominator() if type == TYPE.BLAST else effectiveCount()).sign() < 0

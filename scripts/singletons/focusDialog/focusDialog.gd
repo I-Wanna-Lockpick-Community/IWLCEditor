@@ -56,8 +56,9 @@ func focusComponent(component:GameComponent) -> void:
 
 func defocusComponent() -> void:
 	if !componentFocused: return
-	if componentFocused is Lock and !mods.active(&"ZeroCostLock") and componentFocused.count.eq(0): changes.addChange(Changes.PropertyChange.new(editor.game,componentFocused,&"count",C.new(1)))
+	if componentFocused is Lock and !mods.active(&"ZeroCostLock") and !(mods.active(&"C3") and componentFocused.type in [Lock.TYPE.BLAST, Lock.TYPE.ALL]) and componentFocused.count.eq(0): changes.addChange(Changes.PropertyChange.new(editor.game,componentFocused,&"count",C.new(1)))
 	componentFocused = null
+	deinteract()
 
 func interact(edit:PanelContainer) -> void:
 	deinteract()
@@ -73,6 +74,26 @@ func deinteract() -> void:
 	interacted.setValue(interacted.value,true)
 	interacted = null
 
+func interactDoorFirstEdit() -> void:
+	defocusComponent()
+	focus(focused)
+
+func interactDoorLastEdit() -> void:
+	defocusComponent()
+	focus(focused)
+	interact(%doorComplexNumberEdit.imaginaryEdit)
+
+func interactLockFirstEdit(index:int) -> void:
+	focusComponent(focused.locks[index])
+
+func interactLockLastEdit(index:int) -> void:
+	focusComponent(focused.locks[index])
+	if componentFocused.type in [Lock.TYPE.NORMAL, Lock.TYPE.EXACT]: interact(%doorAxialNumberEdit)
+	elif componentFocused.type in [Lock.TYPE.BLAST, Lock.TYPE.ALL]:
+		if componentFocused.isPartial: interact(%partialBlastDenominatorEdit.imaginaryEdit)
+		else: interact(%partialBlastNumeratorEdit.imaginaryEdit)
+	else: deinteract()
+
 func tabbed(numberEdit:PanelContainer) -> void:
 	editor.grab_focus()
 	if Input.is_key_pressed(KEY_SHIFT):
@@ -82,27 +103,38 @@ func tabbed(numberEdit:PanelContainer) -> void:
 				if focused is KeyBulk:
 					interact(%keyCountEdit.imaginaryEdit)
 				elif focused is Door:
-					if len(focused.locks) > 0: %lockHandler.buttons[len(focused.locks)-1].button_pressed = true
-					interact(%doorAxialNumberEdit)
+					if numberEdit == %doorComplexNumberEdit.realEdit:
+						if len(focused.locks) > 0: interactLockLastEdit(-1)
+						else: interactDoorLastEdit()
+					elif numberEdit == %partialBlastDenominatorEdit.realEdit:
+						interact(%partialBlastNumeratorEdit.imaginaryEdit)
+					elif numberEdit == %partialBlastNumeratorEdit.realEdit:
+						if componentFocused.index == 0: interactDoorLastEdit()
+						else: interactLockLastEdit(componentFocused.index-1)
 			NumberEdit.PURPOSE.AXIAL:
-				if !componentFocused: return
-				if componentFocused.index == 0: doorDialog._spendSelected(); interact(%doorComplexNumberEdit.imaginaryEdit)
-				else:
-					%lockHandler.buttons[componentFocused.index - 1].button_pressed = true
+				assert(componentFocused)
+				if componentFocused.index == 0: interactDoorLastEdit()
+				else: interactLockLastEdit(componentFocused.index-1)
 	else:
 		match numberEdit.purpose:
-			NumberEdit.PURPOSE.REAL: interact(numberEdit.get_parent().imaginaryEdit)
+			NumberEdit.PURPOSE.REAL:
+				interact(numberEdit.get_parent().imaginaryEdit)
 			NumberEdit.PURPOSE.IMAGINARY:
 				if focused is KeyBulk:
 					interact(%keyCountEdit.realEdit)
 				elif focused is Door:
-					if len(focused.locks) > 0: %lockHandler.buttons[0].button_pressed = true
-					interact(%doorAxialNumberEdit)
+					if numberEdit == %doorComplexNumberEdit.imaginaryEdit:
+						if len(focused.locks) > 0: interactLockFirstEdit(0)
+						else: interactDoorFirstEdit()
+					elif numberEdit == %partialBlastNumeratorEdit.imaginaryEdit and componentFocused.isPartial:
+						interact(%partialBlastDenominatorEdit.realEdit)
+					elif numberEdit in [%partialBlastNumeratorEdit.imaginaryEdit, %partialBlastDenominatorEdit.imaginaryEdit]:
+						if componentFocused.index == len(focused.locks) - 1: interactDoorFirstEdit()
+						else: interactLockFirstEdit(componentFocused.index+1)
 			NumberEdit.PURPOSE.AXIAL:
-				if !componentFocused: return
-				if componentFocused.index == len(focused.locks) - 1: doorDialog._spendSelected(); interact(%doorComplexNumberEdit.realEdit)
-				else:
-					%lockHandler.buttons[componentFocused.index + 1].button_pressed = true
+				assert(componentFocused)
+				if componentFocused.index == len(focused.locks) - 1: interactDoorFirstEdit()
+				else: interactLockFirstEdit(componentFocused.index+1)
 
 func receiveKey(event:InputEvent) -> bool:
 	if focused is KeyBulk: return keyDialog.receiveKey(event)

@@ -305,8 +305,8 @@ func _input(event:InputEvent) -> void:
 			# IN EDIT
 			if %objectSearch.has_focus(): return
 			if quickSet.quick: quickSet.receiveKey(event); return
-			if focusDialog.focused and focusDialog.receiveKey(event): return
 			if focusDialog.interacted and focusDialog.interacted.receiveKey(event): return
+			if focusDialog.focused and focusDialog.receiveKey(event): return
 			match event.keycode:
 				KEY_ESCAPE:
 					modes.setMode(MODE.SELECT)

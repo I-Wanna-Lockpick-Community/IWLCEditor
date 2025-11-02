@@ -163,7 +163,7 @@ func _draw() -> void:
 			RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,FRAME_HIGH,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,Color.from_hsv(game.complexViewHue,0.4901960784,1))
 			RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,FRAME_MAIN,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,Color.from_hsv(game.complexViewHue,0.7058823529,0.9019607843))
 			RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,FRAME_DARK,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,Color.from_hsv(game.complexViewHue,1,0.7450980392))
-		elif (len(locks) > 0 and type == TYPE.SIMPLE and locks[0].count.sign() < 0) != (ipow().sign() < 0): RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,FRAME_NEGATIVE,CORNER_SIZE,CORNER_SIZE)
+		elif (len(locks) > 0 and type == TYPE.SIMPLE and locks[0].isNegative()) != (ipow().sign() < 0): RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,FRAME_NEGATIVE,CORNER_SIZE,CORNER_SIZE)
 		else: RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,FRAME,CORNER_SIZE,CORNER_SIZE)
 	# auras
 	if crumbled if game.playState == Game.PLAY_STATE.EDIT else gameCrumbled:
@@ -238,7 +238,7 @@ func propertyChangedInit(property:StringName) -> void:
 				changes.addChange(Changes.PropertyChange.new(game,self,&"frozen",false))
 				changes.addChange(Changes.PropertyChange.new(game,self,&"crumbled",false))
 				changes.addChange(Changes.PropertyChange.new(game,self,&"painted",false))
-	if property == &"size" and type == TYPE.SIMPLE and locks.get(0): locks[0]._simpleDoorUpdate() # ghhghghhh TODO: figure this out
+	if property == &"size" and type == TYPE.SIMPLE and len(locks)>0: locks[0]._simpleDoorUpdate() # ghhghghhh TODO: figure this out
 
 func propertyChangedDo(property:StringName) -> void:
 	super(property)
@@ -466,7 +466,6 @@ func tryDynamiteOpen(player:Player) -> bool:
 	else:
 		openedForwards = player.key[Game.COLOR.DYNAMITE].across(gameCopies.axis()).hasPositive()
 		openedBackwards = player.key[Game.COLOR.DYNAMITE].across(gameCopies.axis()).hasNonPositive()
-		print(player.key[Game.COLOR.DYNAMITE].across(gameCopies.axis()).hasNonPositive())
 
 		gameChanges.addChange(GameChanges.PropertyChange.new(game, self, &"gameCopies", gameCopies.minus(player.key[Game.COLOR.DYNAMITE])))
 		gameChanges.addChange(GameChanges.KeyChange.new(game, Game.COLOR.DYNAMITE, C.ZERO))
