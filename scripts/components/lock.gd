@@ -78,16 +78,30 @@ func getPredefinedLockSprite() -> Texture2D:
 	if effectiveCount().isNonzeroImag(): return PREDEFINED_SPRITE_IMAGINARY[effectiveConfiguration()*2+int(type==TYPE.EXACT)]
 	else: return PREDEFINED_SPRITE_NORMAL[effectiveConfiguration()*2+int(type==TYPE.EXACT)]
 
-const FRAME:Array[Texture2D] = [
-	preload("res://assets/game/lock/frame/AnySnormal.png"), preload("res://assets/game/lock/frame/AnySnegative.png"), preload("res://assets/game/lock/frame/AnySnot.png"), preload("res://assets/game/lock/frame/AnySnotNegative.png"),
-	preload("res://assets/game/lock/frame/AnyHnormal.png"), preload("res://assets/game/lock/frame/AnyHnegative.png"), preload("res://assets/game/lock/frame/AnyHnot.png"), preload("res://assets/game/lock/frame/AnyHnotNegative.png"),
-	preload("res://assets/game/lock/frame/AnyVnormal.png"), preload("res://assets/game/lock/frame/AnyVnegative.png"), preload("res://assets/game/lock/frame/AnyVnot.png"), preload("res://assets/game/lock/frame/AnyVnotNegative.png"),
-	preload("res://assets/game/lock/frame/AnyMnormal.png"), preload("res://assets/game/lock/frame/AnyMnegative.png"), preload("res://assets/game/lock/frame/AnyMnot.png"), preload("res://assets/game/lock/frame/AnyMnotNegative.png"),
-	preload("res://assets/game/lock/frame/AnyLnormal.png"), preload("res://assets/game/lock/frame/AnyLnegative.png"), preload("res://assets/game/lock/frame/AnyLnot.png"), preload("res://assets/game/lock/frame/AnyLnotNegative.png"),
-	preload("res://assets/game/lock/frame/AnyXLnormal.png"), preload("res://assets/game/lock/frame/AnyXLnegative.png"), preload("res://assets/game/lock/frame/AnyXLnot.png"), preload("res://assets/game/lock/frame/AnyXLnotNegative.png"),
-	preload("res://assets/game/lock/frame/ANYnormal.png"), preload("res://assets/game/lock/frame/ANYnegative.png"), preload("res://assets/game/lock/frame/ANYnot.png"), preload("res://assets/game/lock/frame/ANYnotNegative.png")
-]
-func getLockFrameSprite() -> Texture2D: return FRAME[sizeType*4+int(effectiveCount().sign()<0)+int(negated)*2]
+const FRAME_HIGH:Texture2D = preload("res://assets/game/lock/frame/high.png")
+const FRAME_MAIN:Texture2D = preload("res://assets/game/lock/frame/main.png")
+const FRAME_DARK:Texture2D = preload("res://assets/game/lock/frame/dark.png")
+
+func getFrameHighColor() -> Color:
+	if effectiveCount().sign() == 0:
+		if negated: return Color.from_hsv(1-game.complexViewHue,1,0.7450980392)
+		else: return Color.from_hsv(game.complexViewHue,0.4901960784,1)
+	elif effectiveCount().sign() < 0: return Color("#14202c") if negated else Color("#ebdfd3")
+	else: return Color("#7b9fc3") if negated else Color("#84603c")
+
+func getFrameMainColor() -> Color:
+	if effectiveCount().sign() == 0:
+		if negated: return Color.from_hsv(1-game.complexViewHue,0.7058823529,0.9019607843)
+		else: return Color.from_hsv(game.complexViewHue,0.7058823529,0.9019607843)
+	elif effectiveCount().sign() < 0: return Color("#274058") if negated else Color("#d8bfa7")
+	else: return Color("#a7bfd8") if negated else Color("#584027")
+
+func getFrameDarkColor() -> Color:
+	if effectiveCount().sign() == 0:
+		if negated: return Color.from_hsv(1-game.complexViewHue,0.4901960784,1)
+		else: return Color.from_hsv(game.complexViewHue,1,0.7450980392)
+	elif effectiveCount().sign() < 0: return Color("#3b6084") if negated else Color("#c49f7b")
+	else: return Color("#d3dfeb") if negated else Color("#42301d")
 
 const SYMBOL_NORMAL = preload("res://assets/game/lock/symbols/normal.png")
 const SYMBOL_BLAST = preload("res://assets/game/lock/symbols/blast.png")
@@ -251,8 +265,9 @@ func _draw() -> void:
 			RenderingServer.canvas_item_add_rect(drawMain,Rect2(rect.position+Vector2.ONE,rect.size-Vector2(2,2)),Game.mainTone[colorAfterCurse()])
 	if game.playState != Game.PLAY_STATE.EDIT and parent.ipow().across(game.player.complexMode).eq(0): return # no copies in this direction; go away
 	# frame
-	if sizeType == SIZE_TYPE.ANY: RenderingServer.canvas_item_add_nine_patch(drawMain,rect,ANY_RECT,getLockFrameSprite(),CORNER_SIZE,CORNER_SIZE)
-	else: RenderingServer.canvas_item_add_texture_rect(drawMain,rect,getLockFrameSprite())
+	RenderingServer.canvas_item_add_nine_patch(drawMain,rect,ANY_RECT,FRAME_HIGH,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,getFrameHighColor())
+	RenderingServer.canvas_item_add_nine_patch(drawMain,rect,ANY_RECT,FRAME_MAIN,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,getFrameMainColor())
+	RenderingServer.canvas_item_add_nine_patch(drawMain,rect,ANY_RECT,FRAME_DARK,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,getFrameDarkColor())
 	# configuration
 	if effectiveConfiguration() == CONFIGURATION.NONE:
 		match type:
@@ -401,7 +416,7 @@ func propertyChangedInit(property:StringName) -> void:
 	if parent.type != Door.TYPE.SIMPLE:
 		if property == &"size": _comboDoorSizeChanged()
 	if property in [&"count", &"sizeType", &"type"]: _setAutoConfiguration()
-	if property in [&"count", &"type"]:
+	if property == &"type":
 		if type in [TYPE.BLANK, TYPE.ALL] and count.neq(1):
 			changes.addChange(Changes.PropertyChange.new(game,self,&"count",C.ONE))
 		if type == TYPE.BLAST and (count.neq(count.axis()) or count.eq(0)):
@@ -410,6 +425,10 @@ func propertyChangedInit(property:StringName) -> void:
 # ==== PLAY ==== #
 var glitchMimic:Game.COLOR = Game.COLOR.GLITCH
 var curseGlitchMimic:Game.COLOR = Game.COLOR.GLITCH
+
+func _process(_delta:float):
+	if count.sign() == 0:
+		queue_redraw()
 
 func stop() -> void:
 	glitchMimic = Game.COLOR.GLITCH

@@ -42,6 +42,7 @@ func showCorrectDialog() -> void:
 func defocus() -> void:
 	if !focused: return
 	editor.quickSet.applyOrCancel()
+	if focused is Door and !mods.active(&"ZeroCopies") and focused.copies.eq(0): changes.addChange(Changes.PropertyChange.new(editor.game,focused,&"copies",C.new(1)))
 	focused = null
 	deinteract()
 	defocusComponent()
@@ -55,6 +56,7 @@ func focusComponent(component:GameComponent) -> void:
 
 func defocusComponent() -> void:
 	if !componentFocused: return
+	if componentFocused is Lock and !mods.active(&"ZeroCostLock") and componentFocused.count.eq(0): changes.addChange(Changes.PropertyChange.new(editor.game,componentFocused,&"count",C.new(1)))
 	componentFocused = null
 
 func interact(edit:PanelContainer) -> void:
@@ -77,9 +79,11 @@ func tabbed(numberEdit:PanelContainer) -> void:
 		match numberEdit.purpose:
 			NumberEdit.PURPOSE.IMAGINARY: interact(numberEdit.get_parent().realEdit)
 			NumberEdit.PURPOSE.REAL:
-				assert(focused is Door)
-				if len(focused.locks) > 0: %lockHandler.buttons[len(focused.locks)-1].button_pressed = true
-				interact(%doorAxialNumberEdit)
+				if focused is KeyBulk:
+					interact(%keyCountEdit.imaginaryEdit)
+				elif focused is Door:
+					if len(focused.locks) > 0: %lockHandler.buttons[len(focused.locks)-1].button_pressed = true
+					interact(%doorAxialNumberEdit)
 			NumberEdit.PURPOSE.AXIAL:
 				if !componentFocused: return
 				if componentFocused.index == 0: doorDialog._spendSelected(); interact(%doorComplexNumberEdit.imaginaryEdit)
@@ -89,9 +93,11 @@ func tabbed(numberEdit:PanelContainer) -> void:
 		match numberEdit.purpose:
 			NumberEdit.PURPOSE.REAL: interact(numberEdit.get_parent().imaginaryEdit)
 			NumberEdit.PURPOSE.IMAGINARY:
-				assert(focused is Door)
-				if len(focused.locks) > 0: %lockHandler.buttons[0].button_pressed = true
-				interact(%doorAxialNumberEdit)
+				if focused is KeyBulk:
+					interact(%keyCountEdit.realEdit)
+				elif focused is Door:
+					if len(focused.locks) > 0: %lockHandler.buttons[0].button_pressed = true
+					interact(%doorAxialNumberEdit)
 			NumberEdit.PURPOSE.AXIAL:
 				if !componentFocused: return
 				if componentFocused.index == len(focused.locks) - 1: doorDialog._spendSelected(); interact(%doorComplexNumberEdit.realEdit)

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ufj0nf272ae3"
-path="res://.godot/imported/AnyLnot.png-23e54c8fd52f4a44ba97cc7dac04f8d7.ctex"
+uid="uid://cio3r1vmrqkhm"
+path="res://.godot/imported/dark.png-e2a7c96a10c44efcbe32c845aecc3118.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/game/lock/frame/AnyLnot.png"
-dest_files=["res://.godot/imported/AnyLnot.png-23e54c8fd52f4a44ba97cc7dac04f8d7.ctex"]
+source_file="res://assets/game/lock/frame/dark.png"
+dest_files=["res://.godot/imported/dark.png-e2a7c96a10c44efcbe32c845aecc3118.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ckjkf2t0655dy"
-path="res://.godot/imported/AnyXLnegative.png-96114a77ffc636363dea0ab47ff46a9a.ctex"
+uid="uid://biwa287ltvrts"
+path="res://.godot/imported/high.png-e48887e0380ba50dafd82bf0225697f2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/game/lock/frame/AnyXLnegative.png"
-dest_files=["res://.godot/imported/AnyXLnegative.png-96114a77ffc636363dea0ab47ff46a9a.ctex"]
+source_file="res://assets/game/lock/frame/high.png"
+dest_files=["res://.godot/imported/high.png-e48887e0380ba50dafd82bf0225697f2.ctex"]
 
 [params]
 

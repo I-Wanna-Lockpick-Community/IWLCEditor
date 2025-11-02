@@ -28,6 +28,8 @@ func getProblemName() -> String:
 	match [modId, type]:
 		[&"NstdLockSize", &"NstdLockSize"]: return "Nonstandard Lock Size"
 		[&"MoreLockConfigs", &"NstdLockConfig"]: return "Nonstandard Lock Configuration"
+		[&"ZeroCopies",&"ZeroCopies"]: return "Zero Copies"
+		[&"ZeroCostLock",&"ZeroCostLock"]: return "Zero Cost Lock"
 
 		[&"C2", &"DynamiteColor"]: return "Dynamite Color"
 		[&"C2", &"QuicksilverColor"]: return "Quicksilver Color"

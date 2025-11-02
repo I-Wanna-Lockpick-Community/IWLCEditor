@@ -19,6 +19,16 @@ static var mods:Dictionary[StringName, Mod] = {
 		"Allows doors to have infinite copies",
 		[&"InfCopies"]
 	),
+	&"ZeroCopies": Mod.new(
+		"Zero Copy Doors",
+		"Allows doors to have zero copies. Walking into zero-copy doors destroys them at no cost or check while updating glitch colors, and copies may be added to them in any direction with master keys",
+		[&"ZeroCopies"], true
+	),
+	&"ZeroCostLock": Mod.new(
+		"Zero Cost Locks",
+		"Also known as lockless locks",
+		[&"ZeroCostLock"], true
+	),
 	&"NoneColor": Mod.new(
 		"None Color",
 		"Adds the None Color from L4vo5's Lockpick Editor",
@@ -49,6 +59,16 @@ static var mods:Dictionary[StringName, Mod] = {
 		"Adds Curse and Decurse Keys and Lock Armaments from world 5 of IWL:C",
 		[&"CurseKeyType", &"LockArmament"]
 	),
+	&"DisconnectedLock": Mod.new(
+		"Disconnected Locks",
+		"Lock of a door but not visually placed on it",
+		[&"DisconnectedLock"], true
+	),
+	&"OutOfBounds": Mod.new(
+		"Out of Bounds",
+		"Objects placed out of level bounds",
+		[&"OutOfBounds"], true
+	),
 }
 
 static var modpacks:Dictionary[StringName, Modpack] = {
@@ -76,7 +96,7 @@ static var modpacks:Dictionary[StringName, Modpack] = {
 				"202?-??-??",
 				"Includes mechanics from C1-C5. If you want to submit levels for IWL:C, you should use this.",
 				"https://github.com/I-Wanna-Lockpick-Community/IWannaLockpick-Continued", # change this to the github releases thing
-				[&"C1", &"C2", &"C3", &"C4", &"C5"]
+				[&"ZeroCostLock",&"C1", &"C2", &"C3", &"C4", &"C5"]
 			)
 		]
 	)
@@ -161,15 +181,17 @@ class Mod extends RefCounted:
 	var description:String
 	var dependencies:Array[StringName]
 	var incompatibilities:Array[StringName]
+	var disclosatory:bool
 
 	var treeItem:TreeItem # for the menu
 	var problems:Dictionary[StringName, Array] # dictionary[problemtype, [gamecomponent]]
 	var selectButton:FindProblems.ModSelectButton # for findproblems
 
-	func _init(_name:String,_description:String,_problems:Array[StringName],_dependencies:Array[StringName]=[],_incompatibilities:Array[StringName]=[]) -> void:
+	func _init(_name:String,_description:String,_problems:Array[StringName],_disclosatory:bool=false,_dependencies:Array[StringName]=[],_incompatibilities:Array[StringName]=[]) -> void:
 		name = _name
 		description = _description
 		for problem in _problems: problems[problem] = []
+		disclosatory = _disclosatory
 		dependencies = _dependencies
 		incompatibilities = _incompatibilities
 	

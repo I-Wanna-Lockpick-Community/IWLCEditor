@@ -23,11 +23,15 @@ func focus(focused:Door, new:bool, dontRedirect:bool) -> void:
 		%spend.button_pressed = true
 		%blastLockSettings.visible = false
 	if new:
-		main.interact(%doorComplexNumberEdit.realEdit)
 		%lockHandler.setup(focused)
 		if focused.type == Door.TYPE.SIMPLE and !dontRedirect: main.focusComponent(focused.locks[0])
+	if %doorComplexNumberEdit.visible:
+		if !main.interacted: main.interact(%doorComplexNumberEdit.realEdit)
+	elif %doorAxialNumberEdit.visible:
+		if !main.interacted: main.interact(%doorAxialNumberEdit)
+	else: main.deinteract()
 
-func focusComponent(component:Lock, new:bool) -> void:
+func focusComponent(component:Lock, _new:bool) -> void:
 	%doorColorSelector.visible = true
 	%doorColorSelector.setSelect(component.color)
 	%doorAxialNumberEdit.setValue(component.count, true)
@@ -44,8 +48,9 @@ func focusComponent(component:Lock, new:bool) -> void:
 	%blastLockAxis.button_pressed = component.count.isNonzeroImag()
 	%lockHandler.redrawButton(component.index)
 	%lockNegated.button_pressed = component.negated
-	if new:
-		main.interact(%doorAxialNumberEdit)
+	if %doorAxialNumberEdit.visible:
+		if !main.interacted: main.interact(%doorAxialNumberEdit)
+	else: main.deinteract()
 
 func receiveKey(event:InputEvent) -> bool:
 	match event.keycode:

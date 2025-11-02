@@ -7,8 +7,10 @@ class_name SelectMods
 
 # the way the picker is laid out
 static var ModTree:Array = [
-	&"NstdLockSize", &"MoreLockConfigs", &"InfCopies", &"NoneColor",
-	SubTree.new("I Wanna Lockpick: Continued", [&"C1",&"C2",&"C3",&"C4",&"C5"])
+	SubTree.new("Benign", [&"NstdLockSize",&"MoreLockConfigs",&"ZeroCostLock",&"ZeroCopies"]),
+	SubTree.new("I Wanna Lockpick: Continued", [&"C1",&"C2",&"C3",&"C4",&"C5"]),
+	SubTree.new("Lockpick Editor Compatibility", [&"InfCopies",&"NoneColor",]),
+	SubTree.new("Possibly Misleading", [&"DisconnectedLock",&"OutOfBounds"])
 ]
 
 var undoStack:Array[RefCounted] = [UndoSeparator.new()]

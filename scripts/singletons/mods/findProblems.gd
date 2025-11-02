@@ -76,10 +76,14 @@ func findProblems(component:GameComponent) -> void:
 					Lock.CONFIGURATION.spr7A, Lock.CONFIGURATION.spr9A, Lock.CONFIGURATION.spr9B, Lock.CONFIGURATION.spr10A, Lock.CONFIGURATION.spr11A, Lock.CONFIGURATION.spr13A,
 					Lock.CONFIGURATION.spr24B
 				])
+			if &"ZeroCostLock" in modsWindow.modsRemoved:
+				noteProblem(&"ZeroCostLock", &"ZeroCostLock", component, component.count.eq(0))
 			if &"C3" in modsWindow.modsRemoved:
 				noteProblem(&"C3", &"ExactLock", component, component.type == Lock.TYPE.EXACT)
 		Door:
 			findColorProblems(component, component.colorSpend)
+			if &"ZeroCopies" in modsWindow.modsRemoved:
+				noteProblem(&"ZeroCopies", &"ZeroCopies", component, component.copies.eq(0))
 		KeyCounterElement:
 			findColorProblems(component, component.color)
 

@@ -140,7 +140,7 @@ func _gui_input(event:InputEvent) -> void:
 							focusDialog.defocus()
 							multiselect.startSelect()
 				MODE.TILE:
-					if game.levelBounds.has_point(mouseWorldPosition):
+					if mods.active(&"OutOfBounds") or game.levelBounds.has_point(mouseWorldPosition):
 						if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 							changes.addChange(Changes.TileChange.new(game,mouseTilePosition/32,true))
 							focusDialog.defocus()
@@ -244,6 +244,25 @@ func dragComponent() -> bool: # returns whether or not an object is being dragge
 	var dragPosition:Vector2 = mouseTilePosition
 	var parentPosition:Vector2 = Vector2.ZERO
 	if componentDragged is not GameObject: parentPosition = componentDragged.parent.position
+	# clamp to bounds
+	dragPosition += Vector2(dragOffset)
+	if componentDragged is Lock:
+		var topLeft:Vector2 = componentDragged.getOffset()
+		var bottomRight:Vector2 = componentDragged.getOffset()+componentDragged.parent.size-Vector2.ONE
+		# this shit sucks
+		if dragPosition.x < topLeft.x or dragPosition.y < topLeft.y:
+			if mods.active(&"C1"): pass
+			elif !mods.active(&"DisconnectedLock"): dragPosition += ceil(Vector2.ZERO.max(topLeft-dragPosition)/Vector2(tileSize))*Vector2(tileSize)
+		if dragMode == DRAG_MODE.POSITION and (dragPosition.x > bottomRight.x or dragPosition.y > bottomRight.y):
+			if mods.active(&"C1"): pass
+			elif !mods.active(&"DisconnectedLock"): dragPosition += floor(Vector2.ZERO.min(bottomRight-dragPosition)/Vector2(tileSize))*Vector2(tileSize)
+	elif componentDragged is not KeyCounterElement and !mods.active(&"OutOfBounds"):
+		var topLeft:Vector2 = game.levelBounds.position
+		var bottomRight:Vector2 = game.levelBounds.end-Vector2i.ONE
+		# this shit sucks
+		if dragPosition.x < topLeft.x or dragPosition.y < topLeft.y: dragPosition += ceil(Vector2.ZERO.max(topLeft-dragPosition)/Vector2(tileSize))*Vector2(tileSize)
+		if dragMode == DRAG_MODE.POSITION and (dragPosition.x > bottomRight.x or dragPosition.y > bottomRight.y): dragPosition += floor(Vector2.ZERO.min(bottomRight-dragPosition)/Vector2(tileSize))*Vector2(tileSize)
+	dragPosition -= Vector2(dragOffset)
 	match dragMode:
 		DRAG_MODE.POSITION:
 			if componentDragged is KeyCounterElement:
@@ -253,8 +272,6 @@ func dragComponent() -> bool: # returns whether or not an object is being dragge
 				elif componentDragged.index < len(componentDragged.parent.elements) - 1 and (componentDragged.position+parentPosition).y - dragPosition.y <= -20:
 					componentDragged.parent._swapElements(componentDragged.index, componentDragged.index+1)
 			else:
-				if componentDragged is not Lock and !game.levelBounds.has_point(dragPosition+dragOffset):
-					dragPosition = dragPosition.clamp(game.levelBounds.position-Vector2i(dragOffset+parentPosition), game.levelBounds.end-Vector2i(dragOffset)-tileSize)
 				changes.addChange(Changes.PropertyChange.new(game,componentDragged,&"position",dragPosition + dragOffset))
 		DRAG_MODE.SIZE_FDIAG, DRAG_MODE.SIZE_BDIAG, DRAG_MODE.SIZE_VERT, DRAG_MODE.SIZE_HORIZ:
 			# since mousetileposition rounds down, dragging down or right should go one tile farther
@@ -264,9 +281,6 @@ func dragComponent() -> bool: # returns whether or not an object is being dragge
 			if mouseWorldPosition.y > dragPivotRect.position.y:
 				dragPosition.y += tileSize.y
 				if componentDragged is Lock: dragPosition.y += componentDragged.getOffset().y*2
-			# clamp to level bounds
-			if componentDragged is not Lock and (mouseTilePosition.x < game.levelBounds.position.x or mouseTilePosition.y < game.levelBounds.position.y):
-				dragPosition = dragPosition.clamp(game.levelBounds.position,dragPosition)
 			# keycounter has only a few possible widths
 			if componentDragged is KeyCounter:
 				dragPosition -= dragPivotRect.position

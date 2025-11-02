@@ -62,8 +62,8 @@ func continueSelect() -> void:
 	size = rect.size
 	selected = []
 	# tiles
-	for x in range(floor(max(editor.game.levelBounds.position.x,worldRect.position.x)/32), ceil(min(worldRect.end.x,editor.game.levelBounds.end.x)/32)):
-		for y in range(floor(max(editor.game.levelBounds.position.y,worldRect.position.y)/32), ceil(min(worldRect.end.y,editor.game.levelBounds.end.y)/32)):
+	for x in range(floor(worldRect.position.x/32), ceil(worldRect.end.x/32)):
+		for y in range(floor(worldRect.position.y/32), ceil(worldRect.end.y/32)):
 			if editor.game.tiles.get_cell_source_id(Vector2i(x,y)) != -1: selected.append(TileSelect.new(editor,Vector2i(x,y)*32))
 	# objects
 	for object in editor.game.objectsParent.get_children():
@@ -156,7 +156,7 @@ class TileSelect extends Select:
 	func startDrag() -> void:
 		changes.addChange(Changes.TileChange.new(editor.game,position/32,false))
 	func endDrag() -> void:
-		if editor.game.levelBounds.has_point(position): changes.addChange(Changes.TileChange.new(editor.game,position/32,true))
+		if mods.active(&"OutOfBounds") or editor.game.levelBounds.has_point(position): changes.addChange(Changes.TileChange.new(editor.game,position/32,true))
 
 	func delete() -> void: changes.addChange(Changes.TileChange.new(editor.game,position/32,false))
 

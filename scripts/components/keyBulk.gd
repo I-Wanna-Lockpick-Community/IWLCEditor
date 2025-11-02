@@ -190,7 +190,7 @@ static func drawKey(_game:Game,keyDrawGlitch:RID,keyDrawMain:RID,keyOffset:Vecto
 		RenderingServer.canvas_item_add_texture_rect(keyDrawMain,rect,FILL[KEYTYPE_TEXTURE_OFFSETS[keyType]],false,Game.mainTone[keyColor])
 
 func propertyChangedInit(property:StringName) -> void:
-	if property in [&"count", &"type"]:
+	if property == &"type":
 		if type not in [TYPE.NORMAL, TYPE.EXACT] and count.neq(1): changes.addChange(Changes.PropertyChange.new(game,self,&"count",C.ONE))
 
 # ==== PLAY ==== #

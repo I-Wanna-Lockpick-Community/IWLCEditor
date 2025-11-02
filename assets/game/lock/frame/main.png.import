@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dwyq3px7xoovb"
-path="res://.godot/imported/AnyMnormal.png-042c70488b9f02b4fef7ada4ad3d88a5.ctex"
+uid="uid://bh7qqlqg441f1"
+path="res://.godot/imported/main.png-71ed12c1590a57c71cdaecc87d5ab7ec.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/game/lock/frame/AnyMnormal.png"
-dest_files=["res://.godot/imported/AnyMnormal.png-042c70488b9f02b4fef7ada4ad3d88a5.ctex"]
+source_file="res://assets/game/lock/frame/main.png"
+dest_files=["res://.godot/imported/main.png-71ed12c1590a57c71cdaecc87d5ab7ec.ctex"]
 
 [params]
 

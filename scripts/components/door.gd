@@ -159,7 +159,7 @@ func _draw() -> void:
 				RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,SPEND_MAIN,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,Game.mainTone[colorAfterCurse()])
 				RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,SPEND_DARK,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,Game.darkTone[colorAfterCurse()])
 		# frame
-		if drawComplex:
+		if drawComplex or (game.playState == Game.PLAY_STATE.EDIT and copies.eq(0)):
 			RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,FRAME_HIGH,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,Color.from_hsv(game.complexViewHue,0.4901960784,1))
 			RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,FRAME_MAIN,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,Color.from_hsv(game.complexViewHue,0.7058823529,0.9019607843))
 			RenderingServer.canvas_item_add_nine_patch(drawMain,rect,TEXTURE_RECT,FRAME_DARK,CORNER_SIZE,CORNER_SIZE,TILE,TILE,true,Color.from_hsv(game.complexViewHue,1,0.7450980392))
@@ -344,7 +344,7 @@ func _process(delta:float) -> void:
 		elif gateOpen and gateAlpha > 0:
 			gateAlpha = max(gateAlpha-delta*6, 0)
 			queue_redraw()
-	if drawComplex: queue_redraw()
+	if drawComplex or (game.playState == Game.PLAY_STATE.EDIT and copies.eq(0)): queue_redraw()
 
 func start() -> void:
 	gameCopies = copies
@@ -384,8 +384,9 @@ func tryOpen(player:Player) -> void:
 		if player.masterCycle == 1 and tryMasterOpen(player): return
 		if player.masterCycle == 2 and tryQuicksilverOpen(player): return
 
-	for lock in locks:
-		if !lock.canOpen(player): return
+	if gameCopies.neq(0): # although nothing (yet) can make a door 0 copy without destroying it
+		for lock in locks:
+			if !lock.canOpen(player): return
 	
 	var cost:C = C.ZERO
 	for lock in locks:
@@ -528,6 +529,7 @@ func propertyGameChangedDo(property:StringName) -> void:
 		%interact.process_mode = PROCESS_MODE_INHERIT if active else PROCESS_MODE_DISABLED
 	if property == &"gateOpen" and type == TYPE.GATE:
 		%collision.process_mode = PROCESS_MODE_DISABLED if gateOpen else PROCESS_MODE_INHERIT
+	if property == &"gameCopies": complexCheck()
 
 func gateCheck(player:Player) -> void:
 	var shouldOpen:bool = true

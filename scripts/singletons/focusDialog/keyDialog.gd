@@ -4,13 +4,15 @@ class_name KeyDialog
 @onready var editor:Editor = get_node("/root/editor")
 @onready var main = get_parent()
 
-func focus(focused:KeyBulk,new:bool) -> void:
+func focus(focused:KeyBulk,_new:bool) -> void:
 	%keyColorSelector.setSelect(focused.color)
 	%keyTypeSelector.setSelect(focused.type)
 	%keyCountEdit.visible = focused.type in [KeyBulk.TYPE.NORMAL,KeyBulk.TYPE.EXACT]
 	%keyCountEdit.setValue(focused.count, true)
 	%keyInfiniteToggle.button_pressed = focused.infinite
-	if new: main.interact(%keyCountEdit.realEdit)
+	if %keyCountEdit.visible:
+		if !main.interacted: main.interact(%keyCountEdit.realEdit)
+	else: main.deinteract()
 
 func receiveKey(event:InputEventKey) -> bool:
 	match event.keycode:
