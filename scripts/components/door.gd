@@ -288,9 +288,9 @@ func removeLock(index:int) -> void:
 	if type == Door.TYPE.SIMPLE: changes.addChange(Changes.PropertyChange.new(game,self,&"type",TYPE.COMBO))
 	changes.bufferSave()
 
-func deleted() -> void:
+func deletedInit() -> void:
 	for remoteLock in remoteLocks:
-		changes.addChange(Changes.ArrayPopAtChange.new(game,remoteLock,&"doors",remoteLock.doors.find(self)))
+		changes.addChange(Changes.ComponentArrayPopAtChange.new(game,remoteLock,&"doors",remoteLock.doors.find(self)))
 
 # ==== PLAY ==== #
 var gameCopies:C = C.ONE

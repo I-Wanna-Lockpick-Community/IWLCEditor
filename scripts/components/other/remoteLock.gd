@@ -141,9 +141,9 @@ func _disconnectTo(door:Door) -> void:
 	changes.addChange(Changes.ComponentArrayPopAtChange.new(game,self,&"doors",doors.find(door)))
 	changes.addChange(Changes.ComponentArrayPopAtChange.new(game,door,&"remoteLocks",door.remoteLocks.find(self)))
 
-func deleted() -> void:
+func deletedInit() -> void:
 	for door in doors:
-		changes.addChange(Changes.ArrayPopAtChange.new(game,door,&"remoteLocks",door.remoteLocks.find(self)))
+		changes.addChange(Changes.ComponentArrayPopAtChange.new(game,door,&"remoteLocks",door.remoteLocks.find(self)))
 
 # ==== PLAY ==== #
 var cursed:bool = false

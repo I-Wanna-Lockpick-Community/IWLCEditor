@@ -2,6 +2,7 @@ extends Node
 class_name Changes
 
 static var NON_OBJECT_COMPONENTS:Array[GDScript] = [Lock, KeyCounterElement]
+static var COMPONENTS:Array[GDScript] = [Lock, KeyCounterElement, KeyBulk, Door, Goal, KeyCounter, PlayerSpawn, RemoteLock]
 
 var undoStack:Array[RefCounted] = [UndoSeparator.new()]
 var stackPosition:int = 0
@@ -26,6 +27,7 @@ func _process(_delta) -> void:
 		if undoStack[stackPosition] is UndoSeparator: return # nothing new happened
 		undoStack.append(UndoSeparator.new())
 		stackPosition += 1
+		print(undoStack)
 
 func undo() -> void:
 	if stackPosition == 0: return
@@ -180,7 +182,6 @@ class CreateComponentChange extends Change:
 				parent.elements[elementIndex].index -= 1
 
 		if game.editor.findProblems: game.editor.findProblems.componentRemoved(dictionary[id])
-		dictionary[id].deleted()
 
 		dictionary[id].queue_free()
 		dictionary.erase(id)
@@ -194,13 +195,20 @@ class DeleteComponentChange extends Change:
 	var type:GDScript
 	var prop:Dictionary[StringName, Variant] = {}
 	var dictionary:Dictionary
+	var arrays:Dictionary[StringName, Array] = {} # dictionary[property, array[type, array]]
 
 	func _init(_game:Game,component:GameComponent) -> void:
 		type = component.get_script()
 		game = _game
 		for property in component.PROPERTIES:
 			prop[property] = Changes.copy(component.get(property))
-		
+		for array in component.ARRAYS.keys():
+			var copiedArray = []
+			for element in component.get(array):
+				if element is GameComponent: copiedArray.append(element.id)
+				else: copiedArray.append(Changes.copy(element))
+			arrays[array] = [component.ARRAYS[array], copiedArray]
+
 		if component.get_script() in Changes.NON_OBJECT_COMPONENTS: dictionary = game.components
 		else: dictionary = game.objects
 		
@@ -213,6 +221,8 @@ class DeleteComponentChange extends Change:
 		
 		if type == PlayerSpawn and component == game.levelStart:
 			changes.addChange(GlobalObjectChange.new(game,game,&"levelStart",null))
+		
+		component.deletedInit()
 		do()
 		if type == KeyCounterElement:
 			game.objects[prop[&"parentId"]]._elementsChanged()
@@ -237,7 +247,6 @@ class DeleteComponentChange extends Change:
 				parent.elements[elementIndex].index -= 1
 		
 		if game.editor.findProblems: game.editor.findProblems.componentRemoved(dictionary[prop[&"id"]])
-		dictionary[prop[&"id"]].deleted()
 
 		dictionary[prop[&"id"]].queue_free()
 		dictionary.erase(prop[&"id"])
@@ -262,6 +271,16 @@ class DeleteComponentChange extends Change:
 		for property in component.PROPERTIES:
 			component.set(property, Changes.copy(prop[property]))
 			component.propertyChangedDo(property)
+		for array in component.ARRAYS.keys():
+			var componentArray = component.get(array)
+			componentArray.clear()
+			if arrays[array][0] in Changes.COMPONENTS:
+				@warning_ignore("incompatible_ternary")
+				var arrayDictionary:Dictionary = game.components if arrays[array][0] in Changes.NON_OBJECT_COMPONENTS else game.objects
+				for element in arrays[array][1]: componentArray.append(arrayDictionary[element])
+			else:
+				for element in arrays[array][1]: componentArray.append(Changes.copy(element))
+			print(component.get(array))
 		dictionary[prop[&"id"]] = component
 		
 		if type == Lock:
@@ -320,7 +339,7 @@ class PropertyChange extends Change:
 		if game.editor.findProblems: game.editor.findProblems.findProblems(component)
 	
 	func _to_string() -> String:
-		return "<PropetyChange:"+str(id)+"."+str(property)+"->"+str(after)+">"
+		return "<PropertyChange:"+str(id)+"."+str(property)+"->"+str(after)+">"
 
 class GlobalObjectChange extends Change:
 	# changes a property that points to a gameobject in some singleton; -1 for null
@@ -353,6 +372,9 @@ class GlobalObjectChange extends Change:
 		if singleton == game and property == &"levelStart":
 			game.editor.topBar.updatePlayButton()
 
+	func _to_string() -> String:
+		return "<GlobalObjectChange:"+str(singleton)+"."+str(property)+"->"+str(afterId)+">"
+
 class GlobalPropertyChange extends Change:
 	# changes a property in some singleton
 
@@ -374,6 +396,9 @@ class GlobalPropertyChange extends Change:
 	func do() -> void: singleton.set(property, after)
 	func undo() -> void: singleton.set(property, before)
 
+	func _to_string() -> String:
+		return "<GlobalPropertyChange:"+str(singleton)+"."+str(property)+"->"+str(after)+">"
+
 class ArrayAppendChange extends Change:
 	# appends to array
 	var id:int
@@ -392,6 +417,9 @@ class ArrayAppendChange extends Change:
 
 	func do() -> void: dictionary[id].get(array).append(after); dictionary[id].queue_redraw()
 	func undo() -> void: dictionary[id].get(array).pop_back(); dictionary[id].queue_redraw()
+
+	func _to_string() -> String:
+		return "<ArrayAppendChange:"+str(id)+"."+str(array)+"+="+str(after)+">"
 
 class ArrayElementChange extends Change:
 	# changes element of array
@@ -416,6 +444,8 @@ class ArrayElementChange extends Change:
 	func do() -> void: dictionary[id].get(array)[index] = Changes.copy(after); dictionary[id].queue_redraw()
 	func undo() -> void: dictionary[id].get(array)[index] = Changes.copy(before); dictionary[id].queue_redraw()
 
+	func _to_string() -> String:
+		return "<ArrayElementChange:"+str(id)+"."+str(array)+"."+str(index)+"->"+str(after)+">"
 class ArrayPopAtChange extends Change:
 	# pops at array index
 	var id:int
@@ -436,6 +466,9 @@ class ArrayPopAtChange extends Change:
 
 	func do() -> void: dictionary[id].get(array).pop_at(index); dictionary[id].queue_redraw()
 	func undo() -> void: dictionary[id].get(array).insert(index,Changes.copy(before)); dictionary[id].queue_redraw()
+
+	func _to_string() -> String:
+		return "<ArrayPopAtChange:"+str(id)+"."+str(array)+"-="+str(index)+">"
 
 class ComponentArrayAppendChange extends Change:
 	# appends to array of components
@@ -462,13 +495,17 @@ class ComponentArrayAppendChange extends Change:
 
 	func do() -> void:
 		dictionary[id].get(array).append(elementDictionary[afterId])
-		game.editor.focusDialog.focusHandlerAdded(elementType, index)
+		if dictionary[id] == game.editor.focusDialog.focused or dictionary[id] == game.editor.focusDialog.componentFocused:
+			game.editor.focusDialog.focusHandlerAdded(elementType, index)
 		dictionary[id].queue_redraw()
 	func undo() -> void:
 		dictionary[id].get(array).pop_back()
-		game.editor.focusDialog.focusHandlerRemoved(elementType, index)
+		if dictionary[id] == game.editor.focusDialog.focused or dictionary[id] == game.editor.focusDialog.componentFocused:
+			game.editor.focusDialog.focusHandlerRemoved(elementType, index)
 		dictionary[id].queue_redraw()
 
+	func _to_string() -> String:
+		return "<ComponentArrayAppendChange:"+str(id)+"."+str(array)+"+="+str(afterId)+">"
 class ComponentArrayElementChange extends Change:
 	# changes element of array of components
 	var id:int
@@ -495,6 +532,9 @@ class ComponentArrayElementChange extends Change:
 	func do() -> void: dictionary[id].get(array)[index] = elementDictionary[afterId]; dictionary[id].queue_redraw()
 	func undo() -> void: dictionary[id].get(array)[index] = elementDictionary[beforeId]; dictionary[id].queue_redraw()
 
+	func _to_string() -> String:
+		return "<ComponentArrayElementChange:"+str(id)+"."+str(array)+"."+str(index)+"->"+str(afterId)+">"
+
 class ComponentArrayPopAtChange extends Change:
 	# pops at array of components index
 	var id:int
@@ -520,10 +560,15 @@ class ComponentArrayPopAtChange extends Change:
 
 	func do() -> void:
 		dictionary[id].get(array).pop_at(index)
-		game.editor.focusDialog.focusHandlerRemoved(elementType, index)
+		if dictionary[id] == game.editor.focusDialog.focused or dictionary[id] == game.editor.focusDialog.componentFocused:
+			game.editor.focusDialog.focusHandlerRemoved(elementType, index)
 		dictionary[id].queue_redraw()
 	
 	func undo() -> void:
 		dictionary[id].get(array).insert(index,elementDictionary[beforeId])
-		game.editor.focusDialog.focusHandlerAdded(elementType, index)
+		if dictionary[id] == game.editor.focusDialog.focused or dictionary[id] == game.editor.focusDialog.componentFocused:
+			game.editor.focusDialog.focusHandlerAdded(elementType, index)
 		dictionary[id].queue_redraw()
+
+	func _to_string() -> String:
+		return "<ComponentArrayPopAtChange:"+str(id)+"."+str(array)+"-="+str(index)+">"
