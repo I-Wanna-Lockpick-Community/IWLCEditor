@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://pxd42bgr2e10"
-path="res://.godot/imported/specificV.png-38083ce11d9bf4d05031e12165cf62b3.ctex"
+path="res://.godot/imported/SpecificV.png-b7499fe434e4dbb7b4b9b0a149f00413.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/focusDialog/lockConfiguration/specificV.png"
-dest_files=["res://.godot/imported/specificV.png-38083ce11d9bf4d05031e12165cf62b3.ctex"]
+source_file="res://assets/ui/focusDialog/lockConfiguration/SpecificV.png"
+dest_files=["res://.godot/imported/SpecificV.png-b7499fe434e4dbb7b4b9b0a149f00413.ctex"]
 
 [params]
 
