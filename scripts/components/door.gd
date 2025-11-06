@@ -424,7 +424,7 @@ func tryOpen(player:Player) -> void:
 		if gameCrumbled and player.key[Game.COLOR.MUD].eq(0): return
 		if gamePainted and player.key[Game.COLOR.GRAFFITI].eq(0): return
 	else:
-		if player.key[Game.COLOR.DYNAMITE].neq(0) and tryDynamiteOpen(player): return
+		if player.explodey and tryDynamiteOpen(player): return
 		if player.masterCycle == 1 and tryMasterOpen(player): return
 		if player.masterCycle == 2 and tryQuicksilverOpen(player): return
 
@@ -631,6 +631,7 @@ func isAllColor(color:Game.COLOR) -> bool:
 	return true
 
 func curseCheck(player:Player) -> void:
+	if type == TYPE.GATE: return
 	if hasColor(Game.COLOR.PURE): return
 	if player.curseMode > 0 and !isAllColor(player.curseColor) and (!cursed or curseColor != player.curseColor):
 		gameChanges.addChange(GameChanges.PropertyChange.new(game,self,&"cursed",true))
@@ -690,7 +691,15 @@ func setGlitch(setColor:Game.COLOR) -> void:
 			gameChanges.addChange(GameChanges.PropertyChange.new(game, lock, &"curseGlitchMimic", setColor))
 			lock.queue_redraw()
 		queue_redraw()
-	if type == TYPE.GATE: gateCheck(game.player)
+	if type == TYPE.GATE:
+		gateCheck(game.player)
+		game.player.checkKeys()
+
+func armamentColors() -> Array[Game.COLOR]:
+	var colors:Array[Game.COLOR]
+	for lock in locks:
+		if lock.armament and lock.colorAfterGlitch() not in colors: colors.append(lock.colorAfterGlitch())
+	return colors
 
 class Debris extends Node2D:
 	const FRAME:Texture2D = preload("res://assets/game/door/debris/frame.png")

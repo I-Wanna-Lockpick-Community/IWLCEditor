@@ -57,6 +57,8 @@ var auraForest:bool = false
 var auraNavy:bool = false
 var auraDraw:RID
 
+var explodey:bool = false
+
 var curseMode:int = 0 # 0 = none, 1 = curse, -1 = uncurse
 var curseColor:Game.COLOR
 var drawCurse:CurseParticle
@@ -156,9 +158,16 @@ func receiveKey(event:InputEventKey):
 		KEY_S: complexSwitch()
 
 func _newlyInteracted(area:Area2D) -> void:
+	if pauseFrame: return
 	var object:GameObject = area.get_parent()
 	if object is KeyBulk: object.collect(self)
 	elif object is RemoteLock: object.check(self)
+	elif object is Door and object.type == Door.TYPE.GATE: checkKeys()
+
+func _newlyUninteracted(area: Area2D):
+	if pauseFrame: return
+	var object:GameObject = area.get_parent()
+	if object is Door and object.type == Door.TYPE.GATE: checkKeys()
 
 func interacted(area:Area2D) -> void:
 	var object:GameObject = area.get_parent()
@@ -179,7 +188,9 @@ func near(area:Area2D) -> void:
 func overlapping(area:Area2D) -> bool: return %interact.overlaps_area(area)
 
 func cycleMaster() -> void:
-	if masterCycle < 1: # MASTER
+	var armamentImmunities:Array[Game.COLOR] = getArmamentImmunities()
+
+	if masterCycle < 1 and Game.COLOR.MASTER not in armamentImmunities: # MASTER
 		var relevantCount:C = key[Game.COLOR.MASTER].across(complexMode)
 		if relevantCount.neq(0):
 			masterCycle = 1
@@ -187,7 +198,7 @@ func cycleMaster() -> void:
 			if relevantCount.sign() > 0: AudioManager.play(preload("res://resources/sounds/player/masterEquip.wav"))
 			else: AudioManager.play(preload("res://resources/sounds/player/masterNegativeEquip.wav"))
 			return
-	if masterCycle < 2: # SILVER
+	if masterCycle < 2 and Game.COLOR.QUICKSILVER not in armamentImmunities: # QUICKSILVER
 		var relevantCount:C = key[Game.COLOR.QUICKSILVER].across(complexMode)
 		if relevantCount.neq(0):
 			masterCycle = 2
@@ -203,28 +214,42 @@ func dropMaster() -> void:
 	masterMode = C.ZERO
 	masterCycle = 0
 
+func getArmamentImmunities() -> Array[Game.COLOR]:
+	var colors:Array[Game.COLOR] = []
+	for area in %interact.get_overlapping_areas():
+		var object = area.get_parent()
+		if object is Door and object.type == Door.TYPE.GATE:
+			for color in object.armamentColors():
+				if color not in colors: colors.append(color)
+	return colors
+
 func checkKeys() -> void:
+	var armamentImmunities:Array[Game.COLOR] = getArmamentImmunities()
+
 	match masterCycle:
-		1: if !key[Game.COLOR.MASTER].across(masterMode).sign() > 0: masterMode = C.ZERO; masterCycle = 0
-		2: if !key[Game.COLOR.QUICKSILVER].across(masterMode).sign() > 0: masterMode = C.ZERO; masterCycle = 0
-	
-	auraRed = key[Game.COLOR.RED].gt(0) and !key[Game.COLOR.RED].minus(key[Game.COLOR.MAROON]).lt(1)
-	auraGreen = key[Game.COLOR.GREEN].gt(0) and !key[Game.COLOR.GREEN].minus(key[Game.COLOR.FOREST]).lt(5)
-	auraBlue = key[Game.COLOR.BLUE].gt(0) and !key[Game.COLOR.BLUE].minus(key[Game.COLOR.NAVY]).lt(3)
-	auraMaroon = key[Game.COLOR.MAROON].gt(0) and !key[Game.COLOR.MAROON].minus(key[Game.COLOR.RED]).lt(1)
-	auraForest = key[Game.COLOR.FOREST].gt(0) and !key[Game.COLOR.FOREST].minus(key[Game.COLOR.GREEN]).lt(5)
-	auraNavy = key[Game.COLOR.NAVY].gt(0) and !key[Game.COLOR.NAVY].minus(key[Game.COLOR.BLUE]).lt(3)
+		1: if !key[Game.COLOR.MASTER].across(masterMode).sign() > 0 or Game.COLOR.MASTER in armamentImmunities: dropMaster()
+		2: if !key[Game.COLOR.QUICKSILVER].across(masterMode).sign() > 0 or Game.COLOR.QUICKSILVER in armamentImmunities: dropMaster()
+
+	auraRed = key[Game.COLOR.RED].gt(0) and !key[Game.COLOR.RED].minus(key[Game.COLOR.MAROON]).lt(1) and Game.COLOR.RED not in armamentImmunities
+	auraGreen = key[Game.COLOR.GREEN].gt(0) and !key[Game.COLOR.GREEN].minus(key[Game.COLOR.FOREST]).lt(5) and Game.COLOR.GREEN not in armamentImmunities
+	auraBlue = key[Game.COLOR.BLUE].gt(0) and !key[Game.COLOR.BLUE].minus(key[Game.COLOR.NAVY]).lt(3) and Game.COLOR.BLUE not in armamentImmunities
+	auraMaroon = key[Game.COLOR.MAROON].gt(0) and !key[Game.COLOR.MAROON].minus(key[Game.COLOR.RED]).lt(1) and Game.COLOR.MAROON not in armamentImmunities
+	auraForest = key[Game.COLOR.FOREST].gt(0) and !key[Game.COLOR.FOREST].minus(key[Game.COLOR.GREEN]).lt(5) and Game.COLOR.FOREST not in armamentImmunities
+	auraNavy = key[Game.COLOR.NAVY].gt(0) and !key[Game.COLOR.NAVY].minus(key[Game.COLOR.BLUE]).lt(3) and Game.COLOR.NAVY not in armamentImmunities
+
+	explodey = key[Game.COLOR.DYNAMITE].neq(0) and Game.COLOR.DYNAMITE not in armamentImmunities
 
 	curseMode = 0
 	var highestSeen:Q = Q.ZERO
-	for color in Game.COLORS:
-		if !curse[color] or key[color].r.eq(0): continue
-		# tie
-		if key[color].r.abs().eq(highestSeen): curseMode = 0
-		elif key[color].r.abs().gt(highestSeen):
-			highestSeen = key[color].r.abs()
-			curseMode = key[color].r.sign()
-			curseColor = color as Game.COLOR
+	if Game.COLOR.PURE not in armamentImmunities:
+		for color in Game.COLORS:
+			if !curse[color] or key[color].r.eq(0) or color in armamentImmunities: continue
+			# tie
+			if key[color].r.abs().eq(highestSeen): curseMode = 0
+			elif key[color].r.abs().gt(highestSeen):
+				highestSeen = key[color].r.abs()
+				curseMode = key[color].r.sign()
+				curseColor = color as Game.COLOR
 
 func complexSwitch() -> void:
 	if complexMode.eq(1): complexMode = C.I

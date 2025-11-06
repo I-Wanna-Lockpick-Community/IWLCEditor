@@ -113,3 +113,4 @@ collision_layer = 0
 shape = SubResource("CircleShape2D_f1ej7")
 
 [connection signal="area_entered" from="interact" to="." method="_newlyInteracted"]
+[connection signal="area_exited" from="interact" to="." method="_newlyUninteracted"]

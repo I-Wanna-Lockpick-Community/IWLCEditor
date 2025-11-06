@@ -348,6 +348,7 @@ func pauseTest() -> void:
 func stopTest() -> void:
 	playState = PLAY_STATE.EDIT
 	gameChanges.saveBuffered = false
+	player.pauseFrame = true
 	await get_tree().process_frame
 	player.queue_free()
 	player = null
