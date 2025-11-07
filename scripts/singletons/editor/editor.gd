@@ -45,7 +45,7 @@ var tileSize:Vector2i = Vector2i(32,32)
 
 var cameraZoom:float = 1
 
-func _process(_delta) -> void:
+func _process(delta:float) -> void:
 	queue_redraw()
 	var scaleFactor:float = (targetCameraZoom/game.editorCamera.zoom.x)**0.2
 	if abs(scaleFactor - 1) < 0.0001:
@@ -58,6 +58,10 @@ func _process(_delta) -> void:
 	if Input.is_key_pressed(KEY_ALT): tileSize = Vector2i(1,1)
 	elif Input.is_key_pressed(KEY_CTRL): tileSize = Vector2i(16,16)
 	else: tileSize = Vector2i(32,32)
+	
+	if game.playState != Game.PLAY_STATE.PLAY and !focusDialog.focused:
+		game.editorCamera.position += Vector2(Input.get_axis(&"camera_left", &"camera_right"),Input.get_axis(&"camera_up", &"camera_down"))*delta/game.editorCamera.zoom*700
+
 
 	mouseWorldPosition = screenspaceToWorldspace(get_global_mouse_position())
 	mouseTilePosition = Vector2i(mouseWorldPosition) / tileSize * tileSize
