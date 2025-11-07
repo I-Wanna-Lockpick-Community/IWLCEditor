@@ -67,7 +67,9 @@ func _process(delta:float) -> void:
 		game.editorCamera.zoom *= scaleFactor
 		game.editorCamera.position += (1-1/scaleFactor) * (worldspaceToScreenspace(zoomPoint)-gameCont.position) / game.editorCamera.zoom
 	
-	if Input.is_key_pressed(KEY_ALT): tileSize = Vector2i(1,1)
+	if Input.is_key_pressed(KEY_ALT):
+		if Input.is_key_pressed(KEY_CTRL): tileSize = Vector2i(1,1)
+		else: tileSize = Vector2i(4,4)
 	elif Input.is_key_pressed(KEY_CTRL): tileSize = Vector2i(16,16)
 	else: tileSize = Vector2i(32,32)
 	

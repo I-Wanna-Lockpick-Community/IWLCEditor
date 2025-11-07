@@ -102,7 +102,8 @@ func _physics_process(_delta:float) -> void:
 		return
 	
 	var xSpeed:float = 6
-	if !is_on_floor() or Input.is_key_pressed(KEY_SHIFT): xSpeed = 3
+	if Input.is_key_pressed(KEY_CTRL): xSpeed = 1
+	elif !is_on_floor() or Input.is_key_pressed(KEY_SHIFT): xSpeed = 3
 	var moveDirection:float = Input.get_axis(&"left", &"right")
 	velocity.x = xSpeed*FPS*moveDirection
 
