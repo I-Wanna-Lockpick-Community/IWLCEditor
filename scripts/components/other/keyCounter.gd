@@ -35,8 +35,6 @@ var drawGlitch:RID
 
 var elements:Array[KeyCounterElement] = []
 
-var starAngle:float = 0
-
 func _init() -> void :
 	size = Vector2(WIDTHS[0],63)
 
@@ -46,10 +44,6 @@ func _ready() -> void:
 	RenderingServer.canvas_item_set_material(drawGlitch,Game.GLITCH_MATERIAL.get_rid())
 	RenderingServer.canvas_item_set_parent(drawMain,get_canvas_item())
 	RenderingServer.canvas_item_set_parent(drawGlitch,get_canvas_item())
-
-func _process(delta:float):
-	starAngle += delta*2.3038346126 # 2.2 degrees per frame, 60fps
-	starAngle = fmod(starAngle,TAU)
 
 func _draw() -> void:
 	RenderingServer.canvas_item_clear(drawMain)
@@ -102,7 +96,19 @@ func nextColor() -> Game.COLOR:
 	if elements[-2].color == Game.COLORS - 1: return Game.COLOR.MASTER
 	return elements[-2].color + 1 as Game.COLOR
 
+func reindexElements() -> void:
+	var index:int = 0
+	for element in elements:
+		element.index = index
+		index += 1
+
 # ==== PLAY ==== #
+var starAngle:float = 0
+
+func _process(delta:float):
+	starAngle += delta*2.3038346126 # 2.2 degrees per frame, 60fps
+	starAngle = fmod(starAngle,TAU)
+
 func start() -> void:
 	super()
 	starAngle = 0

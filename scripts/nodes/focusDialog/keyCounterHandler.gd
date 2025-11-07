@@ -50,18 +50,18 @@ class KeyCounterHandlerButton extends HandlerButton:
 		drawMain = RenderingServer.canvas_item_create()
 		drawGlitch = RenderingServer.canvas_item_create()
 		RenderingServer.canvas_item_set_material(drawGlitch,Game.UNSCALED_GLITCH_MATERIAL.get_rid())
-		RenderingServer.canvas_item_set_parent(drawMain,handler.get_canvas_item())
-		RenderingServer.canvas_item_set_parent(drawGlitch,handler.get_canvas_item())
+		RenderingServer.canvas_item_set_parent(drawMain,get_canvas_item())
+		RenderingServer.canvas_item_set_parent(drawGlitch,get_canvas_item())
+		RenderingServer.canvas_item_set_z_index(drawMain,-1)
+		RenderingServer.canvas_item_set_z_index(drawGlitch,-1)
 		editor.game.connect(&"goldIndexChanged",queue_redraw)
-		await get_tree().process_frame
-		await get_tree().process_frame # control positioning jank. figure out some way to fix this
 		queue_redraw()
 	
 	func _draw() -> void:
 		RenderingServer.canvas_item_clear(drawMain)
 		RenderingServer.canvas_item_clear(drawGlitch)
 		if deleted: return
-		var rect:Rect2 = Rect2(position+Vector2.ONE, size-Vector2(2,2))
+		var rect:Rect2 = Rect2(Vector2.ONE, size-Vector2(2,2))
 		var texture:Texture2D
 		match element.color:
 			Game.COLOR.MASTER: texture = editor.game.masterTex()

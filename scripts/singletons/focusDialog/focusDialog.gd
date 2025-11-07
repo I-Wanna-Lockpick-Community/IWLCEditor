@@ -191,7 +191,9 @@ func focusHandlerRemoved(type:GDScript, index:int) -> void:
 		Lock:
 			%lockHandler.removeButton(index)
 			if index != 0: focusComponent(focused.locks[index-1])
+			elif len(focused.locks) > 0: focusComponent(focused.locks[0])
 		KeyCounterElement:
 			%keyCounterHandler.removeButton(index)
 			if index != 0: focusComponent(focused.elements[index-1])
+			elif len(focused.elements) > 0: focusComponent(focused.elements[0])
 		Door: %doorsHandler.removeButton(index,false)

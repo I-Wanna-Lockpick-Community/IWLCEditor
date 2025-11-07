@@ -148,8 +148,7 @@ class CreateComponentChange extends Change:
 			prop[&"index"] = len(parent.elements)
 			parent.elements.insert(prop[&"index"], component)
 			parent.add_child(component)
-			for elementIndex in range(prop[&"index"]+1, len(game.objects[prop[&"parentId"]].elements)):
-				game.objects[prop[&"parentId"]].elements[elementIndex].index += 1
+			parent.reindexElements()
 		else: parent.add_child(component)
 
 		result = component
@@ -174,8 +173,7 @@ class CreateComponentChange extends Change:
 		elif type == KeyCounterElement:
 			parent = game.objects[prop[&"parentId"]]
 			parent.elements.pop_at(prop[&"index"])
-			for elementIndex in range(prop[&"index"], len(parent.elements)):
-				parent.elements[elementIndex].index -= 1
+			parent.reindexElements()
 
 		if game.editor.findProblems: game.editor.findProblems.componentRemoved(dictionary[id])
 
@@ -237,9 +235,8 @@ class DeleteComponentChange extends Change:
 			parent.reindexLocks()
 		elif type == KeyCounterElement:
 			parent = game.objects[prop[&"parentId"]]
-			game.objects[prop[&"parentId"]].elements.pop_at(prop[&"index"])
-			for elementIndex in range(prop[&"index"], len(parent.elements)):
-				parent.elements[elementIndex].index -= 1
+			parent.elements.pop_at(prop[&"index"])
+			parent.reindexElements()
 		
 		if game.editor.findProblems: game.editor.findProblems.componentRemoved(dictionary[prop[&"id"]])
 
@@ -284,8 +281,7 @@ class DeleteComponentChange extends Change:
 			component.parent = parent
 			parent.elements.insert(prop[&"index"], component)
 			parent.add_child(component)
-			for elementIndex in range(prop[&"index"]+1, len(game.objects[prop[&"parentId"]].elements)):
-				game.objects[prop[&"parentId"]].elements[elementIndex].index += 1
+			parent.reindexElements()
 		else: parent.add_child(component)
 
 		if parent == game.editor.focusDialog.focused: game.editor.focusDialog.focusHandlerAdded(type, prop[&"index"])
