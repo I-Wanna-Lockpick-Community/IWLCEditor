@@ -133,6 +133,7 @@ func save(path:String="") -> void:
 	# tiles
 	file.store_var(game.tiles.tile_map_data)
 	# components
+	file.store_64(game.componentIdIter)
 	file.store_64(len(game.components))
 	for component in game.components.values():
 		file.store_16(Game.COMPONENTS.find(component.get_script()))
@@ -142,6 +143,7 @@ func save(path:String="") -> void:
 			if component.ARRAYS[array] in Game.COMPONENTS: file.store_var(componentArrayToIDs(component.get(array)))
 			else: file.store_var(component.get(array))
 	# objects
+	file.store_64(game.objectIdIter)
 	file.store_64(len(game.objects))
 	for object in game.objects.values():
 		file.store_16(Game.COMPONENTS.find(object.get_script()))

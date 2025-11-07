@@ -77,6 +77,7 @@ static func load(file:FileAccess, game:Game) -> void:
 	# tiles
 	game.tiles.tile_map_data = file.get_var()
 	# components
+	game.componentIdIter = file.get_64()
 	var componentBufferedArrays:Dictionary[int,Dictionary] = {} # dictionary[object id, dictionary[property name, array]]
 	for _i in file.get_64():
 		var type:GDScript = COMPONENTS[file.get_16()]
@@ -92,6 +93,7 @@ static func load(file:FileAccess, game:Game) -> void:
 		for array in ARRAYS[type].keys():
 			componentBufferedArrays[component.id][array] = file.get_var() # handle it at the end; not all components will be ready
 	# objects
+	game.objectIdIter = file.get_64()
 	var objectBufferedArrays:Dictionary[int,Dictionary] = {} # dictionary[object id, dictionary[property name, array]]
 	for _i in file.get_64():
 		var type:GDScript = COMPONENTS[file.get_16()]
