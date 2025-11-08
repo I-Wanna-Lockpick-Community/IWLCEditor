@@ -13,9 +13,7 @@ func _ready() -> void:
 	textDraw = RenderingServer.canvas_item_create()
 	RenderingServer.canvas_item_set_z_index(textDraw,1)
 	RenderingServer.canvas_item_set_parent(textDraw,get_canvas_item())
-	if !FileAccess.file_exists("user://config.ini"):
-		print("uhoh")
-		closed()
+	if !FileAccess.file_exists("user://config.ini"): closed()
 
 func _tabSelected(tab:int) -> void:
 	%levelSettings.visible = tab == 0
@@ -52,12 +50,12 @@ func opened() -> void:
 	%levelNumber.text = editor.game.level.number
 	%levelName.text = editor.game.level.name
 	%levelAuthor.text = editor.game.level.author
-	%useNativeFileDialog.button_pressed = configFile.get_value("editor", "useNativeFileDialog")	
+	%fileDialogWorkaround.button_pressed = configFile.get_value("editor", "fileDialogWorkaround")	
 
 func closed() -> void:
-	configFile.set_value("editor", "useNativeFileDialog", %useNativeFileDialog.button_pressed)
+	configFile.set_value("editor", "fileDialogWorkaround", %fileDialogWorkaround.button_pressed)
 	configFile.save("user://config.ini")
 
-func _useNativeFileDialogSet(toggled_on:bool) -> void:
-	editor.saveAsDialog.use_native_dialog = toggled_on
-	editor.openDialog.use_native_dialog = toggled_on
+func _fileDialogWorkaroundSet(toggled_on: bool) -> void:
+	editor.saveAsDialog.use_native_dialog = !toggled_on
+	editor.openDialog.use_native_dialog = !toggled_on

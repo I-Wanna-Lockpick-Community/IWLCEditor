@@ -128,16 +128,15 @@ layout_mode = 2
 [node name="c" type="HBoxContainer" parent="c/editorSettings/c"]
 layout_mode = 2
 
-[node name="useNativeFileDialog" type="CheckBox" parent="c/editorSettings/c/c"]
+[node name="fileDialogWorkaround" type="CheckBox" parent="c/editorSettings/c/c"]
 unique_name_in_owner = true
 layout_mode = 2
-button_pressed = true
-text = "Use native file dialog"
+text = "File Dialog Workaround"
 
 [node name="TextureRect" type="TextureRect" parent="c/editorSettings/c/c"]
 layout_mode = 2
 size_flags_vertical = 0
-tooltip_text = "If file dialogs aren't opening correctly (eg. Save As does nothing), turn this off."
+tooltip_text = "Uses godot's built-in file dialog instead of the OS native one. If file dialogs aren't opening correctly (eg. Save As does nothing), turn this on."
 texture = ExtResource("5_iswfj")
 
 [connection signal="focus_exited" from="c/levelSettings/c/c/levelNumber" to="." method="_defocus"]
@@ -146,4 +145,4 @@ texture = ExtResource("5_iswfj")
 [connection signal="text_changed" from="c/levelSettings/c/c/levelName" to="." method="_levelNameSet"]
 [connection signal="focus_exited" from="c/levelSettings/c/c/levelAuthor" to="." method="_defocus"]
 [connection signal="text_changed" from="c/levelSettings/c/c/levelAuthor" to="." method="_levelAuthorSet"]
-[connection signal="toggled" from="c/editorSettings/c/c/useNativeFileDialog" to="." method="_useNativeFileDialogSet"]
+[connection signal="toggled" from="c/editorSettings/c/c/fileDialogWorkaround" to="." method="_fileDialogWorkaroundSet"]
