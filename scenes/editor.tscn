@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3 uid="uid://djnt51xv7wn52"]
+[gd_scene load_steps=44 format=3 uid="uid://djnt51xv7wn52"]
 
 [ext_resource type="Theme" uid="uid://bvfthh0vm4fbp" path="res://resources/uiTheme.tres" id="1_j8y2p"]
 [ext_resource type="Script" uid="uid://2wjcj6frwpjo" path="res://scripts/singletons/editor/editor.gd" id="2_o435n"]
@@ -26,6 +26,8 @@
 [ext_resource type="Texture2D" uid="uid://lbuoq1o35ds2" path="res://assets/ui/playControls/pause.png" id="15_fce0a"]
 [ext_resource type="Texture2D" uid="uid://dnjchcne7ikhq" path="res://assets/ui/playControls/stop.png" id="16_m12ww"]
 [ext_resource type="Script" uid="uid://lwocqakgt4qr" path="res://resources/controlExplanation.gd" id="17_bn54a"]
+[ext_resource type="Material" uid="uid://bc5stfiew5ji4" path="res://resources/materials/outlineDrawMaterial.tres" id="22_jke8t"]
+[ext_resource type="Script" uid="uid://c7ptucaohcnil" path="res://scripts/singletons/editor/outline.gd" id="23_lo5f0"]
 [ext_resource type="PackedScene" uid="uid://uojm0pynavni" path="res://scenes/settingsMenu.tscn" id="25_6lm8n"]
 [ext_resource type="Texture2D" uid="uid://fegj6p13p4ot" path="res://assets/ui/settings/description.png" id="26_nhltt"]
 [ext_resource type="Texture2D" uid="uid://ba540b55427af" path="res://assets/ui/settings/setings.png" id="27_1abrv"]
@@ -338,6 +340,26 @@ render_target_update_mode = 4
 
 [node name="world" parent="c/gameCont/gameViewportCont/gameViewport" instance=ExtResource("8_5tdu1")]
 unique_name_in_owner = true
+
+[node name="editorCamera" type="Camera2D" parent="c/gameCont/gameViewportCont/gameViewport/world"]
+unique_name_in_owner = true
+position = Vector2(-10, -10)
+anchor_mode = 0
+limit_enabled = false
+
+[node name="playCamera" type="Camera2D" parent="c/gameCont/gameViewportCont/gameViewport/world"]
+unique_name_in_owner = true
+enabled = false
+limit_left = 0
+limit_top = 0
+limit_right = 800
+limit_bottom = 608
+position_smoothing_enabled = true
+
+[node name="outline" type="Node2D" parent="c/gameCont/gameViewportCont/gameViewport/world"]
+z_index = 3
+material = ExtResource("22_jke8t")
+script = ExtResource("23_lo5f0")
 
 [node name="multiselect" parent="c/gameCont/gameViewportCont" instance=ExtResource("12_q8l03")]
 unique_name_in_owner = true

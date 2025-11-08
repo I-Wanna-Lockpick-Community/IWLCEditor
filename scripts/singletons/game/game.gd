@@ -235,8 +235,6 @@ const darkTone:Array[Color] = [
 @onready var editor:Editor = get_node("/root/editor")
 var world:World
 var tiles:TileMapLayer
-var editorCamera:Camera2D
-var playCamera:Camera2D
 var objectsParent:Node
 
 var level:Level = Level.new()
@@ -258,10 +256,10 @@ var levelBounds:Rect2i = Rect2i(0,0,800,608):
 	set(value):
 		levelBounds = value
 		RenderingServer.global_shader_parameter_set(&"LEVEL_SIZE", levelBounds.size)
-		playCamera.limit_left = levelBounds.position.x
-		playCamera.limit_top = levelBounds.position.y
-		playCamera.limit_right = levelBounds.end.x
-		playCamera.limit_bottom = levelBounds.end.y
+		editor.playCamera.limit_left = levelBounds.position.x
+		editor.playCamera.limit_top = levelBounds.position.y
+		editor.playCamera.limit_right = levelBounds.end.x
+		editor.playCamera.limit_bottom = levelBounds.end.y
 
 const NO_MATERIAL:CanvasItemMaterial = preload("res://resources/materials/noMaterial.tres")
 const GLITCH_MATERIAL:ShaderMaterial = preload("res://resources/materials/glitchDrawMaterial.tres") # uses texture pixel size
@@ -287,8 +285,8 @@ var playState:PLAY_STATE = PLAY_STATE.EDIT:
 	set(value):
 		playState = value
 		editor.topBar._updateButtons()
-		editorCamera.enabled = playState != PLAY_STATE.PLAY
-		playCamera.enabled = playState == PLAY_STATE.PLAY
+		editor.editorCamera.enabled = playState != PLAY_STATE.PLAY
+		editor.playCamera.enabled = playState == PLAY_STATE.PLAY
 		fastAnimSpeed = 0
 		fastAnimTimer = 0
 		complexViewHue = 0
@@ -302,8 +300,6 @@ var complexViewHue:float = 0
 func setWorld(_world:World) -> void:
 	world = _world
 	tiles = world.tiles
-	editorCamera = world.editorCamera
-	playCamera = world.playCamera
 	objectsParent = world.objectsParent
 	updateWindowName()
 
@@ -316,7 +312,7 @@ func _process(delta:float) -> void:
 	RenderingServer.global_shader_parameter_set(&"NOISE_OFFSET", Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000)))
 	RenderingServer.global_shader_parameter_set(&"RCAMERA_ZOOM", 1/editor.cameraZoom)
 	if player:
-		playCamera.position = player.position
+		editor.playCamera.position = player.position
 	# fast anims
 	if fastAnimTimer > 0:
 		fastAnimTimer -= delta
