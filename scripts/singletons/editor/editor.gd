@@ -60,6 +60,7 @@ func _ready() -> void:
 	RenderingServer.canvas_item_set_z_index(descriptionDraw, 1)
 	RenderingServer.canvas_item_set_parent(descriptionDraw, %description.get_canvas_item())
 	Game.setWorld(%world)
+	%settingsText.text = "IWLCEditor v" + ProjectSettings.get_setting("application/config/version")
 
 func _process(delta:float) -> void:
 	queue_redraw()
