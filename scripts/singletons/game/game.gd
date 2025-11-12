@@ -439,6 +439,5 @@ func editReadied() -> void:
 	Saving.editor = editor
 	Explainer.editor = editor
 	Saving.load(Saving.savePath)
-	Saving.setConnections()
 	await get_tree().process_frame
 	editor.home()

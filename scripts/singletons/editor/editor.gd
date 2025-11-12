@@ -63,6 +63,7 @@ func _ready() -> void:
 	%settingsText.text = "IWLCEditor v" + ProjectSettings.get_setting("application/config/version")
 	settingsMenu.opened()
 	if Game.awaitingEditor: Game.editReadied()
+	Saving.editorReady()
 
 func _process(delta:float) -> void:
 	queue_redraw()
