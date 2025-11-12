@@ -40,6 +40,10 @@ func opened(configFile:ConfigFile) -> void:
 		Game.mainTone[color] = configFile.get_value("game", "mainTone"+str(color), Game.DEFAULT_MAIN[color])
 		Game.darkTone[color] = configFile.get_value("game", "darkTone"+str(color), Game.DEFAULT_DARK[color])
 	updateLabels()
+	%hideTimer.button_pressed = configFile.get_value("game", "hideTimer", false)
+	%autoRun.button_pressed = configFile.get_value("game", "autoRun", true)
+	%fullJumps.button_pressed = configFile.get_value("game", "fullJumps", false)
+	%fastAnimations.button_pressed = configFile.get_value("game", "fastAnimations", false)
 
 func closed(configFile:ConfigFile) -> void:
 	configFile.set_value("game", "volume", %volume.value)
@@ -51,6 +55,9 @@ func closed(configFile:ConfigFile) -> void:
 		configFile.set_value("game", "highTone"+str(color), Game.highTone[color])
 		configFile.set_value("game", "mainTone"+str(color), Game.mainTone[color])
 		configFile.set_value("game", "darkTone"+str(color), Game.darkTone[color])
+	configFile.set_value("game", "hideTimer", %hideTimer.button_pressed)
+	configFile.set_value("game", "fullJumps", %fullJumps.button_pressed)
+	configFile.set_value("game", "fastAnimations", %fastAnimations.button_pressed)
 
 func _volumeSet(value:float) -> void:
 	AudioServer.set_bus_volume_linear(AudioManager.masterBus, lerpf(0,MAX_VOLUME,value))
@@ -125,3 +132,15 @@ func _draw() -> void:
 	RenderingServer.canvas_item_clear(doorDrawMain)
 	KeyBulk.drawKey(keyDrawMain,keyDrawMain,Vector2.ZERO,%colorSelector.selected)
 	Door.drawDoor(doorDrawScaled,doorDrawAuraBreaker,doorDrawMain,doorDrawMain,Vector2(32,32),%colorSelector.selected,Game.COLOR.GLITCH,Door.TYPE.COMBO,1)
+
+func _hideTimerSet(toggled_on:bool) -> void:
+	Game.hideTimer = toggled_on
+
+func _autoRunSet(toggled_on:bool) -> void:
+	Game.autoRun = toggled_on
+
+func _fullJumpsSet(toggled_on:bool) -> void:
+	Game.fullJumps = toggled_on
+
+func _fastAnimationsSet(toggled_on:bool) -> void:
+	Game.fastAnimations = toggled_on

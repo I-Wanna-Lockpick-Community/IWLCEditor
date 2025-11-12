@@ -65,6 +65,7 @@ func _process(delta:float) -> void:
 					%mouseBlocker.mouse_filter = MOUSE_FILTER_IGNORE
 					%gameViewportCont.get_material().set_shader_parameter(&"pauseAnimTimer", 0)
 					%gameViewportCont.get_material().set_shader_parameter(&"darken", false)
+	if !paused: Game.timer += delta
 
 func _draw() -> void:
 	RenderingServer.canvas_item_clear(mainDraw)

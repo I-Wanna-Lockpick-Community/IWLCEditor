@@ -233,6 +233,27 @@ text = "Accessibility"
 label_settings = SubResource("LabelSettings_vtnhb")
 vertical_alignment = 2
 
+[node name="hideTimer" type="CheckBox" parent="c"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Hide Timer"
+
+[node name="autoRun" type="CheckBox" parent="c"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Auto-Run"
+
+[node name="fullJumps" type="CheckBox" parent="c"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Full Jumps"
+
+[node name="fastAnimations" type="CheckBox" parent="c"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Fast Animations"
+
 [connection signal="value_changed" from="c/c/volume" to="." method="_volumeSet"]
 [connection signal="toggled" from="c/fullscreen" to="." method="_fullscreenSet"]
 [connection signal="toggled" from="c/smoothingMode" to="." method="_smoothingModeSet"]
@@ -242,3 +263,7 @@ vertical_alignment = 2
 [connection signal="value_changed" from="c/c2/c/green/greenSlider" to="." method="_greenSet"]
 [connection signal="value_changed" from="c/c2/c/blue/blueSlider" to="." method="_blueSet"]
 [connection signal="pressed" from="c/c2/c/c5/setTonesToMain" to="." method="_setTonesToMain"]
+[connection signal="toggled" from="c/hideTimer" to="." method="_hideTimerSet"]
+[connection signal="toggled" from="c/autoRun" to="." method="_autoRunSet"]
+[connection signal="toggled" from="c/fullJumps" to="." method="_fullJumpsSet"]
+[connection signal="toggled" from="c/fastAnimations" to="." method="_fastAnimationsSet"]

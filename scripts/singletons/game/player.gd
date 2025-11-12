@@ -105,7 +105,7 @@ func _physics_process(_delta:float) -> void:
 	
 	var xSpeed:float = 6
 	if Input.is_key_pressed(KEY_CTRL): xSpeed = 1
-	elif !is_on_floor() or Input.is_key_pressed(KEY_SHIFT): xSpeed = 3
+	elif !is_on_floor() or (Input.is_key_pressed(KEY_SHIFT) == Game.autoRun): xSpeed = 3
 	var moveDirection:float = Input.get_axis(&"left", &"right")
 	velocity.x = xSpeed*FPS*moveDirection
 
@@ -118,7 +118,7 @@ func _physics_process(_delta:float) -> void:
 			velocity.y = -DOUBLE_JUMP_SPEED*FPS
 			canDoubleJump = false
 			AudioManager.play(preload("res://resources/sounds/player/doubleJump.wav"))
-	if Input.is_action_just_released(&"jump") and velocity.y < 0: velocity.y *= 0.45
+	if Input.is_action_just_released(&"jump") and velocity.y < 0 and !Game.fullJumps: velocity.y *= 0.45
 	velocity.y += GRAVITY*FPS
 	velocity.y = clamp(velocity.y, -Y_MAXSPEED*FPS, Y_MAXSPEED*FPS)
 

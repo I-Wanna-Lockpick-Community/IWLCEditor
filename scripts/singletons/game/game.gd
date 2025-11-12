@@ -318,6 +318,14 @@ var simpleLocks:bool = false:
 		simpleLocks = value
 		for component in components.values():
 			if component is Lock: component.queue_redraw()
+var hideTimer:bool = false:
+	set(value):
+		hideTimer = value
+		updateWindowName()
+var timer:float
+var autoRun:bool = true
+var fullJumps:bool = false
+var fastAnimations:bool = false
 
 func setWorld(_world:World) -> void:
 	world = _world
@@ -337,19 +345,23 @@ func _process(delta:float) -> void:
 	if fastAnimTimer > 0:
 		fastAnimTimer -= delta
 		# counted down; reset
-		if fastAnimTimer <= 0:
+		if fastAnimTimer <= 0 or !fastAnimations:
 			fastAnimTimer = 0
 			fastAnimSpeed = 0
 	complexViewHue += delta*0.1764705882 # 0.75/255 per frame, 60fps
 	if complexViewHue >= 1: complexViewHue -= 1
+	if playGame and !hideTimer: updateWindowName()
 
 func updateWindowName() -> void:
 	if editor:
 		if anyChanges: get_window().title = level.name + "*" + " - IWLCEditor"
 		else: get_window().title = level.name + " - IWLCEditor"
-	else: get_window().title = "IWLCEditor"
+	else:
+		if hideTimer: get_window().title = "IWLCEditor"
+		else: get_window().title = "IWLCEditor - Time: " + formatTime(timer)
 
 func fasterAnims() -> void:
+	if !fastAnimations: return
 	fastAnimTimer = 1.6666666667 # 100 frames, 60fps
 	fastAnimSpeed = min(fastAnimSpeed+0.05, 1)
 
@@ -404,7 +416,6 @@ func restart() -> void:
 		if editor: playTest(latestSpawn)
 	else: playGame.restart()
 
-
 func setGlitch(color:COLOR) -> void:
 	for object in objects.values():
 		if object.get_script() in [KeyBulk, Door, RemoteLock]:
@@ -414,6 +425,7 @@ func play() -> void:
 	if !levelStart: return Saving.loadError("No level start found,\nCannot play level.", "Play Error")
 	Saving.confirmAction = Saving.ACTION.SAVE_FOR_PLAY
 	Saving.save()
+	timer = 0
 
 func playSaved() -> void:
 	editorWindowMode = get_window().mode
@@ -449,3 +461,14 @@ func editReadied() -> void:
 	Saving.load(Saving.savePath)
 	await get_tree().process_frame
 	editor.home()
+
+func formatTime(seconds:float) -> String:
+	var hours:int = int(seconds/3600)
+	seconds -= hours*3600
+	var minutes:int = int(seconds/60)
+	seconds -= minutes*60
+	var string:String = ""
+	if hours: string += str(hours) + "h "
+	if minutes: string += str(minutes) + "m "
+	if seconds: string += str(int(seconds)) + "s "
+	return string.trim_suffix(" ")
