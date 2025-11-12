@@ -46,10 +46,10 @@ func objectSelected(object:GDScript, quiet:bool=false) -> void:
 	selected = object
 	if !quiet: editor.modes.setMode(Editor.MODE.OTHER)
 
-func _searchSubmitted():
+func _searchSubmitted() -> void:
 	if firstResult: objectSelected(firstResult)
 	editor.grab_focus()
 
-func clearResults():
+func clearResults() -> void:
 	for result in %results.get_children():
 		result.queue_free()

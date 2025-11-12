@@ -49,6 +49,7 @@ func _saveChanges():
 	for mod in modsRemoved: removeMod(mod)
 	if !Mods.objectAvailable(editor.otherObjects.selected): editor.otherObjects.objectSelected(PlayerSpawn, true)
 	Changes.bufferSave()
+	editor.grab_focus()
 	get_tree().call_group("modUI", "changedMods")
 	queue_free()
 
