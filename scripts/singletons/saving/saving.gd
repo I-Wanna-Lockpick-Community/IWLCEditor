@@ -7,6 +7,8 @@ enum ACTION {NEW, OPEN, SAVE_FOR_PLAY, OPEN_FOR_PLAY, NONE}
 var savePath:String = ""
 var confirmAction:ACTION
 
+var jsCallback:JavaScriptObject
+
 const FILE_FORMAT_VERSION:int = 0
 
 # Okay.
@@ -26,8 +28,12 @@ const FILE_FORMAT_VERSION:int = 0
 # - components
 # - objects
 
+func _ready() -> void:
+	if OS.has_feature('web'):
+		JavaScriptBridge.eval("window.callbacks = {loadJs: null};")
+
 func editorReady() -> void:
-	DirAccess.make_dir_absolute("user://puzzles")
+	if !OS.has_feature('web'): DirAccess.make_dir_absolute("user://puzzles")
 	editor.saveAsDialog.add_filter("*.cedit", "IWLCEditor Puzzle File")
 	editor.openDialog.add_filter("*.cedit", "IWLCEditor Puzzle File")
 	editor.unsavedChangesPopup.get_ok_button().theme_type_variation = &"RadioButtonText"
@@ -35,7 +41,7 @@ func editorReady() -> void:
 	editor.unsavedChangesPopup.get_ok_button().pressed.connect(confirmed)
 	editor.loadErrorPopup.get_ok_button().theme_type_variation = &"RadioButtonText"
 	editor.saveAsDialog.file_selected.connect(save)
-	editor.openDialog.file_selected.connect(load)
+	editor.openDialog.file_selected.connect(loadFile)
 
 func open() -> void:
 	confirmAction = ACTION.OPEN
@@ -71,9 +77,28 @@ func confirmed() -> void:
 	match confirmAction:
 		ACTION.NEW: clear()
 		ACTION.OPEN, ACTION.OPEN_FOR_PLAY:
-			editor.openDialog.current_dir = "puzzles"
-			editor.openDialog.visible = true
-			editor.openDialog.grab_focus()
+			if OS.has_feature('web'):
+				jsCallback = JavaScriptBridge.create_callback(loadJs)
+				JavaScriptBridge.get_interface("callbacks").loadJs = jsCallback
+				JavaScriptBridge.eval("
+					const input = document.createElement('input');
+					input.setAttribute('type', 'file');
+					input.setAttribute('accept', '.cedit');
+					input.addEventListener('change', event=>{
+						const reader = new FileReader();
+						reader.onload = ()=>{
+							let array = new Uint8Array(reader.result);
+							callbacks.loadJs(array.toBase64());
+						}
+						reader.readAsArrayBuffer(event.target.files[0]);
+						input.remove();
+					});
+					input.click();
+				")
+			else:
+				editor.openDialog.current_dir = "puzzles"
+				editor.openDialog.visible = true
+				editor.openDialog.grab_focus()
 
 func clear() -> void:
 	savePath = ""
@@ -116,7 +141,10 @@ func clear() -> void:
 	if editor: editor.home()
 
 func save(path:String="") -> void:
-	if !path:
+	if OS.has_feature('web'):
+		savePath = "user://temp.cedit"
+		path = savePath
+	elif !path:
 		if savePath:
 			path = savePath
 			if !Game.anyChanges:
@@ -165,6 +193,9 @@ func save(path:String="") -> void:
 		if object is Door: file.store_var(componentArrayToIDs(object.locks))
 		elif object is KeyCounter: file.store_var(componentArrayToIDs(object.elements))
 	file.close()
+	if OS.has_feature('web'):
+		JavaScriptBridge.download_buffer(FileAccess.get_file_as_bytes(path),Game.level.name+".cedit")
+	
 	if confirmAction == ACTION.SAVE_FOR_PLAY: Game.playSaved()
 
 func componentArrayToIDs(array:Array) -> Array: return array.map(func(component):return component.id)
@@ -172,7 +203,7 @@ func IDArraytoComponents(type:GDScript,array:Array) -> Array:
 	if type in Game.NON_OBJECT_COMPONENTS: return array.map(func(id):return Game.components[id])
 	else: return array.map(func(id):return Game.objects[id])
 
-func load(path:String) -> void:
+func loadFile(path:String) -> void:
 	clear()
 	savePath = path
 	if confirmAction == ACTION.OPEN_FOR_PLAY:
@@ -185,6 +216,13 @@ func load(path:String) -> void:
 	match file.get_32():
 		0: LoadV0.load(file)
 		_: return loadError("Unrecognised version")
+
+func loadJs(result) -> void:
+	var buffer:PackedByteArray = Marshalls.base64_to_raw(result[0])
+	var file = FileAccess.open("user://temp.cedit",FileAccess.ModeFlags.WRITE)
+	file.store_buffer(buffer)
+	file.close()
+	loadFile("user://temp.cedit")
 
 func loadError(message:String,title:="Load Error") -> void:
 	editor.loadErrorPopup.title = title

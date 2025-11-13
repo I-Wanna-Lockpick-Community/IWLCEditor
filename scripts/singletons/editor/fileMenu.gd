@@ -7,11 +7,11 @@ func _ready() -> void:
 	menu.theme_type_variation = &"PopupMenuFiles"
 	menu.id_pressed.connect(optionPressed)
 	@warning_ignore("int_as_enum_without_cast") @warning_ignore("int_as_enum_without_match")
-	menu.set_item_accelerator(2, KEY_MASK_CMD_OR_CTRL | KEY_S)
+	menu.set_item_accelerator(3, KEY_MASK_CMD_OR_CTRL | KEY_S)
 	@warning_ignore("int_as_enum_without_cast") @warning_ignore("int_as_enum_without_match")
-	menu.set_item_accelerator(3, KEY_MASK_CMD_OR_CTRL | KEY_MASK_SHIFT | KEY_S)
+	menu.set_item_accelerator(4, KEY_MASK_CMD_OR_CTRL | KEY_MASK_SHIFT | KEY_S)
 	@warning_ignore("int_as_enum_without_cast") @warning_ignore("int_as_enum_without_match")
-	menu.set_item_accelerator(4, KEY_MASK_CMD_OR_CTRL | KEY_E)
+	menu.set_item_accelerator(5, KEY_MASK_CMD_OR_CTRL | KEY_E)
 
 func optionPressed(id:int) -> void:
 	match id:

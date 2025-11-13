@@ -475,7 +475,7 @@ func playSaved() -> void:
 
 func playReadied() -> void:
 	setWorld(playGame.world)
-	Saving.load(Saving.savePath)
+	Saving.loadFile(Saving.savePath)
 	playState = PLAY_STATE.PLAY
 	playGame.loadSettings()
 	playGame.startLevel()
@@ -495,7 +495,7 @@ func editReadied() -> void:
 	Mods.editor = editor
 	Saving.editor = editor
 	Explainer.editor = editor
-	Saving.load(Saving.savePath)
+	Saving.loadFile(Saving.savePath)
 	await get_tree().process_frame
 	editor.home()
 

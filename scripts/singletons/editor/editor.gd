@@ -74,6 +74,9 @@ func _ready() -> void:
 	settingsMenu.opened()
 	if Game.awaitingEditor: Game.editReadied()
 	Saving.editorReady()
+	if OS.has_feature('web'):
+		%fileMenu.menu.remove_item(6)
+		%fileMenu.menu.remove_item(4)
 
 func _process(delta:float) -> void:
 	queue_redraw()
@@ -405,8 +408,10 @@ func _input(event:InputEvent) -> void:
 				KEY_D: modes.setMode(MODE.DOOR)
 				KEY_S:
 					if Input.is_key_pressed(KEY_CTRL):
-						if Input.is_key_pressed(KEY_SHIFT): Saving.saveAs()
-						else: Saving.save()
+						if OS.has_feature('web'): Saving.save()
+						else:
+							if Input.is_key_pressed(KEY_SHIFT): Saving.saveAs()
+							else: Saving.save()
 					else: otherObjects.objectSearch.grab_focus()
 				KEY_Z: if Input.is_key_pressed(KEY_CTRL): Changes.undo()
 				KEY_Y: if Input.is_key_pressed(KEY_CTRL): Changes.redo()
