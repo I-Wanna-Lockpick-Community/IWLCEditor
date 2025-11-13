@@ -23,8 +23,10 @@ func describe(object:GameObject, pos:Vector2, screenBottomRight:Vector2) -> void
 				string += "\nCost: " + lockCost(object.locks[0])
 				if object.locks[0].color != object.colorSpend: string += " " + Game.COLOR_NAMES[object.locks[0].color]
 			else:
-				if object.type == Door.TYPE.COMBO: string += Game.COLOR_NAMES[object.colorSpend] + " Combo Door"
-				else: string += "Gate"
+				if object.type == Door.TYPE.COMBO:
+					string += Game.COLOR_NAMES[object.colorSpend]
+					string += " Lockless Door" if len(object.locks) == 0 else " Combo Door"
+				else: string += "Empty Gate" if len(object.locks) == 0 else "Gate"
 				for lock in object.locks:
 					string += "\nLock: " + LOCK_TYPES[lock.type] + Game.COLOR_NAMES[lock.color] + ", Cost: " + lockCost(lock)
 					if lock.armament:
