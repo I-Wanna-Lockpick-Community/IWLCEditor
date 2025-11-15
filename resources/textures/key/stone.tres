@@ -1,0 +1,98 @@
+[gd_resource type="Resource" script_class="KeyColorTextures" load_steps=29 format=3 uid="uid://w3cjhvyms04x"]
+
+[ext_resource type="Script" uid="uid://bc15160wh4ebd" path="res://scripts/resources/textures/singleTexture.gd" id="1_fqy6t"]
+[ext_resource type="Texture2D" uid="uid://d2k6pkjqbofxb" path="res://assets/game/key/stone/curse.png" id="2_54i6l"]
+[ext_resource type="Texture2D" uid="uid://b58pkkcnaekjs" path="res://assets/game/key/stone/exact.png" id="3_s8vs1"]
+[ext_resource type="Texture2D" uid="uid://cl2fs2tend2p6" path="res://assets/game/key/stone/glitchCurse.png" id="4_dimuy"]
+[ext_resource type="Texture2D" uid="uid://c71mjfjuvhd50" path="res://assets/game/key/stone/glitchExact.png" id="5_3x8gy"]
+[ext_resource type="Texture2D" uid="uid://c1d2fgw4q53t7" path="res://assets/game/key/stone/glitchNormal.png" id="6_755fr"]
+[ext_resource type="Script" uid="uid://0hwvdono0ga8" path="res://scripts/resources/textures/keyColorGlitchTextures.gd" id="7_yurwj"]
+[ext_resource type="Texture2D" uid="uid://b3ejv318h5qnw" path="res://assets/game/key/stone/glitchStar.png" id="8_d4k7d"]
+[ext_resource type="Texture2D" uid="uid://pdrccamb83sm" path="res://assets/game/key/stone/glitchUncurse.png" id="9_vlt6j"]
+[ext_resource type="Texture2D" uid="uid://cy7fxx6rpuju0" path="res://assets/game/key/stone/glitchUnstar.png" id="10_gxc6n"]
+[ext_resource type="Texture2D" uid="uid://dsimpnr5by61f" path="res://assets/game/key/stone/normal.png" id="11_g4igt"]
+[ext_resource type="Script" uid="uid://d0hv5d4sn3671" path="res://scripts/resources/textures/keyColorTextures.gd" id="12_beuhh"]
+[ext_resource type="Texture2D" uid="uid://c8t7x40mvud58" path="res://assets/game/key/stone/star.png" id="13_0npn2"]
+[ext_resource type="Texture2D" uid="uid://j2qb3kiij8k8" path="res://assets/game/key/stone/uncurse.png" id="14_1hi00"]
+[ext_resource type="Texture2D" uid="uid://btnqon2rkc72j" path="res://assets/game/key/stone/unstar.png" id="15_umex5"]
+
+[sub_resource type="Resource" id="Resource_2flee"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("2_54i6l")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_r3v1x"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("3_s8vs1")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_vlois"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("4_dimuy")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_cfi3d"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("5_3x8gy")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_aondu"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("6_755fr")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_jcrne"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("8_d4k7d")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_nug7h"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("9_vlt6j")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_l4llk"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("10_gxc6n")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_l5b1d"]
+script = ExtResource("7_yurwj")
+normal = SubResource("Resource_aondu")
+exact = SubResource("Resource_cfi3d")
+star = SubResource("Resource_jcrne")
+unstar = SubResource("Resource_l4llk")
+curse = SubResource("Resource_vlois")
+uncurse = SubResource("Resource_nug7h")
+metadata/_custom_type_script = "uid://0hwvdono0ga8"
+
+[sub_resource type="Resource" id="Resource_2jc7c"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("11_g4igt")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_o8imb"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("13_0npn2")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_vvf2i"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("14_1hi00")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[sub_resource type="Resource" id="Resource_7gbgy"]
+script = ExtResource("1_fqy6t")
+texture = ExtResource("15_umex5")
+metadata/_custom_type_script = "uid://bc15160wh4ebd"
+
+[resource]
+script = ExtResource("12_beuhh")
+normal = SubResource("Resource_2jc7c")
+exact = SubResource("Resource_r3v1x")
+star = SubResource("Resource_o8imb")
+unstar = SubResource("Resource_7gbgy")
+curse = SubResource("Resource_2flee")
+uncurse = SubResource("Resource_vvf2i")
+glitch = SubResource("Resource_l5b1d")
+metadata/_custom_type_script = "uid://d0hv5d4sn3671"

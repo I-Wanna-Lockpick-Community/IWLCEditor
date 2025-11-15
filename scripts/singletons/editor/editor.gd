@@ -112,7 +112,7 @@ func _process(delta:float) -> void:
 		objectHovered = null
 		for object in Game.objectsParent.get_children():
 			if mode == MODE.SELECT or (mode == MODE.KEY and object is KeyBulk) or (mode == MODE.DOOR and object is Door) or (mode == MODE.OTHER and object.get_script() == otherObjects.selected):
-				if Rect2(object.getDrawPosition(), object.size).has_point(mouseWorldPosition):
+				if Rect2(object.getDrawPosition(), object.size).has_point(mouseWorldPosition) and (Game.playState != Game.PLAY_STATE.PLAY or object.active):
 					objectHovered = object
 		if focusDialog.focused is Door:
 			for lock in focusDialog.focused.locks:

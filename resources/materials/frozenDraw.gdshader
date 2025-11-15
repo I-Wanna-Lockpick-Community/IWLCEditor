@@ -6,7 +6,7 @@ const vec4 COLOR_BACK = vec4(0.8554, 0.91, 0.91, 0.39215687);
 bool stripe(float start, float width, vec2 positer) {
     float thispos = positer.x + positer.y;
     float end = start+width;
-    return max(size.x,size.y) > end && thispos > start && thispos < end;
+    return size.x+size.y > 2.0*end && thispos > start && thispos < end;
 }
 
 void fragment() {

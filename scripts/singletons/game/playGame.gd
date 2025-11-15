@@ -147,6 +147,7 @@ func start() -> void:
 		component.queue_redraw()
 
 func restart() -> void:
+	Game.playState = Game.PLAY_STATE.EDIT
 	Game.player.pauseFrame = true
 	Game.player.queue_free()
 	for object in Game.objects.values():
@@ -156,6 +157,7 @@ func restart() -> void:
 		component.stop()
 		component.queue_redraw()
 	await get_tree().process_frame
+	Game.playState = Game.PLAY_STATE.PLAY
 	start()
 
 func inAnimation() -> bool:
