@@ -6,8 +6,8 @@ enum VALUE {SIGNFLIP, POSROTOR, NEGROTOR}
 
 const ICONS:Array[Texture2D] = [
 	preload("res://assets/ui/focusDialog/keySplitType/signflip.png"),
-	preload("res://assets/ui/focusDialog/keySplitType/posRotor.png"),
-	preload("res://assets/ui/focusDialog/keySplitType/negRotor.png"),
+	preload("res://assets/ui/focusDialog/keySplitType/posrotor.png"),
+	preload("res://assets/ui/focusDialog/keySplitType/negrotor.png"),
 ]
 
 func _ready() -> void:
