@@ -146,6 +146,55 @@ unique_name_in_owner = true
 anchors_preset = 0
 mouse_filter = 2
 
+[node name="winMenu" type="Control" parent="aspectRatioContainer/gameViewportCont/gameViewport"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -200.0
+offset_right = 300.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("5_n2d1d")
+
+[node name="c" type="HBoxContainer" parent="aspectRatioContainer/gameViewportCont/gameViewport/winMenu"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 33.0
+grow_horizontal = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="restart" type="Button" parent="aspectRatioContainer/gameViewportCont/gameViewport/winMenu/c"]
+custom_minimum_size = Vector2(0, 33)
+layout_mode = 2
+theme_type_variation = &"RadioButtonText"
+theme_override_font_sizes/font_size = 16
+text = "Restart (R)"
+
+[node name="edit" type="Button" parent="aspectRatioContainer/gameViewportCont/gameViewport/winMenu/c"]
+custom_minimum_size = Vector2(0, 33)
+layout_mode = 2
+theme_type_variation = &"RadioButtonText"
+theme_override_font_sizes/font_size = 16
+text = "Edit Level"
+
+[node name="quit" type="Button" parent="aspectRatioContainer/gameViewportCont/gameViewport/winMenu/c"]
+custom_minimum_size = Vector2(0, 33)
+layout_mode = 2
+theme_type_variation = &"RadioButtonText"
+theme_override_font_sizes/font_size = 16
+text = "Quit Game (Instantly)"
+
 [connection signal="pressed" from="aspectRatioContainer/gameViewportCont/gameViewport/pauseMenu/main/c/resume" to="." method="pause"]
 [connection signal="pressed" from="aspectRatioContainer/gameViewportCont/gameViewport/pauseMenu/main/c/edit" to="." method="editLevel"]
 [connection signal="pressed" from="aspectRatioContainer/gameViewportCont/gameViewport/pauseMenu/main/c/quit" to="." method="quit"]
+[connection signal="pressed" from="aspectRatioContainer/gameViewportCont/gameViewport/winMenu/c/restart" to="." method="restart"]
+[connection signal="pressed" from="aspectRatioContainer/gameViewportCont/gameViewport/winMenu/c/edit" to="." method="editLevel"]
+[connection signal="pressed" from="aspectRatioContainer/gameViewportCont/gameViewport/winMenu/c/quit" to="." method="quit"]

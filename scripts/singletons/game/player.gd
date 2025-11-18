@@ -99,8 +99,9 @@ func _ready() -> void:
 	previousPosition = position
 
 func _physics_process(_delta:float) -> void:
-	if Game.playState != Game.PLAY_STATE.PLAY or (Game.playGame and (Game.playGame.inAnimation() or Game.playGame.paused)):
-		%sprite.pause()
+	if Game.playState != Game.PLAY_STATE.PLAY or (Game.playGame and (Game.playGame.inAnimation() or Game.playGame.paused)) or Game.won:
+		if Game.won: visible = false
+		else: %sprite.pause()
 		return
 	
 	var xSpeed:float = 6
@@ -158,7 +159,7 @@ func receiveKey(event:InputEventKey):
 		KEY_P: if Game.editor: Game.pauseTest()
 		KEY_O: if Game.editor: Game.stopTest()
 		KEY_R: Game.restart()
-		KEY_Z: if GameChanges.undo(): AudioManager.play(preload("res://resources/sounds/player/undo.wav")).pitch_scale = 0.6
+		KEY_Z: if GameChanges.undo(): AudioManager.play(preload("res://resources/sounds/player/undo.wav"), 1, 0.6)
 		KEY_X: cycleMaster()
 		KEY_S: complexSwitch()
 
@@ -168,6 +169,7 @@ func _newlyInteracted(area:Area2D) -> void:
 	if object is KeyBulk: object.collect(self)
 	elif object is RemoteLock: object.check(self)
 	elif object is Door and object.type == Door.TYPE.GATE: checkKeys()
+	elif object is Goal: Game.win(object)
 
 func _newlyUninteracted(area: Area2D):
 	if pauseFrame: return

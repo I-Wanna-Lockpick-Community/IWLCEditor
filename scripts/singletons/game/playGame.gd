@@ -17,11 +17,13 @@ var drawDescription:RID
 var drawMain:RID
 var drawAutoRunGradient:RID
 
+enum ROOM_TRANSITION_TYPE {ENTER_LEVEL, WIN_LEVEL, WIN_OMEGA}
+var roomTransitionType:ROOM_TRANSITION_TYPE = ROOM_TRANSITION_TYPE.ENTER_LEVEL
 var roomTransitionPhase:int = -1
 var roomTransitionTimer:float = 0
 var roomTransitionColor:Color = Color("#5a96c8")
 var textWiggleAngle:float = 0
-var textOffsetAngle:float = 0
+var textOffsetAngle:float = 0 # in degrees!!
 var pauseAnimPhase:int = -1
 var pauseAnimTimer:float = 0
 var autoRunTimer:float = 2
@@ -44,18 +46,36 @@ func _process(delta:float) -> void:
 		roomTransitionTimer += delta
 		match roomTransitionPhase:
 			0:
-				roomTransitionColor.a = 1
-				textOffsetAngle = deg_to_rad(min(roomTransitionTimer*60,40)*2.25)
+				var nextPhase:float
+				match roomTransitionType:
+					ROOM_TRANSITION_TYPE.ENTER_LEVEL: nextPhase = 0.5833333333
+					ROOM_TRANSITION_TYPE.WIN_LEVEL: nextPhase = 1; textOffsetAngle = min(textOffsetAngle + 67.5*delta, 90)
+				roomTransitionColor.a = roomTransitionTimer/nextPhase
 				queue_redraw()
-				if roomTransitionTimer >= 2.5:
+				if roomTransitionTimer >= nextPhase:
 					roomTransitionTimer = 0
 					roomTransitionPhase += 1
 			1:
-				roomTransitionColor.a = 1 - roomTransitionTimer/0.5833333333
-				textOffsetAngle = deg_to_rad(90+roomTransitionTimer*154.2857142857)
+				var nextPhase:float
+				match roomTransitionType:
+					ROOM_TRANSITION_TYPE.ENTER_LEVEL: nextPhase = 2.5; textOffsetAngle = min(textOffsetAngle + 135*delta,90)
+					ROOM_TRANSITION_TYPE.WIN_LEVEL: nextPhase = 1.6666666667; textOffsetAngle = min(textOffsetAngle + 67.5*delta, 90)
+				roomTransitionColor.a = 1
 				queue_redraw()
-				if roomTransitionTimer >= 0.4166666667:
-					roomTransitionPhase = -1
+				if roomTransitionTimer >= nextPhase:
+					roomTransitionTimer = 0
+					roomTransitionPhase += 1
+			2:
+				if roomTransitionType == ROOM_TRANSITION_TYPE.ENTER_LEVEL:
+					roomTransitionColor.a = 1 - roomTransitionTimer/0.5833333333
+					textOffsetAngle = 90+roomTransitionTimer*154.2857142857
+					if roomTransitionTimer >= 0.4166666667:
+						roomTransitionPhase = -1
+				else:
+					%winMenu.visible = true
+					if Input.is_action_just_pressed("restart"):
+						restart()
+				queue_redraw()
 	if pauseAnimPhase != -1:
 		pauseAnimTimer += delta
 		%gameViewportCont.get_material().set_shader_parameter(&"pauseAnimTimer", pauseAnimTimer)
@@ -77,7 +97,7 @@ func _process(delta:float) -> void:
 		autoRunTimer += delta
 		queue_redraw()
 		if autoRunTimer >= 2: autoRunTimer = 2
-	if !paused: Game.timer += delta
+	if !paused: Game.playTime += delta
 	var objectHovered:GameObject
 	var mouseWorldPosition = %world.get_local_mouse_position()
 	for object in Game.objects.values():
@@ -97,13 +117,17 @@ func _draw() -> void:
 		TextDraw.outlinedCentered(Game.FROOMNUM,drawDescription,Game.level.shortNumber,Color("#8c50c8"),Color("#140064"),20,Vector2(733,569))
 	# room transition
 	if roomTransitionPhase != -1:
-		var textOffset = Vector2(0,500*sin(textOffsetAngle)-500)
+		var textOffset = Vector2(0,500*sin(deg_to_rad(textOffsetAngle))-500)
 		var textWiggle:Vector2 = Vector2(sin(textWiggleAngle),cos(textWiggleAngle))*3
 		var textWiggle2:Vector2 = Vector2(sin(textWiggleAngle+0.8726646260),cos(textWiggleAngle+0.8726646260))*6
 		RenderingServer.canvas_item_add_rect(drawMain,SCREEN_RECT,roomTransitionColor)
-		TextDraw.outlinedCentered2(Game.FLEVELID,drawMain,Game.level.number,Color.WHITE,Color.BLACK,24,Vector2(400,216)+textWiggle+textOffset)
-		TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,Game.level.name,Color.WHITE,Color.BLACK,36,Vector2(400,280)+textWiggle2+textOffset)
-		TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,Game.level.author,Color.BLACK,Color.WHITE,36,Vector2(400,376)+textWiggle+textOffset)
+		match roomTransitionType:
+			ROOM_TRANSITION_TYPE.ENTER_LEVEL:
+				TextDraw.outlinedCentered2(Game.FLEVELID,drawMain,Game.level.number,Color.WHITE,Color.BLACK,24,Vector2(400,216)+textWiggle+textOffset)
+				TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,Game.level.name,Color.WHITE,Color.BLACK,36,Vector2(400,280)+textWiggle2+textOffset)
+				TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,Game.level.author,Color.BLACK,Color.WHITE,36,Vector2(400,376)+textWiggle+textOffset)
+			ROOM_TRANSITION_TYPE.WIN_LEVEL:
+				TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,"Congratulations!",Color.WHITE,Color.BLACK,36,Vector2(400,280)+textWiggle2+textOffset)
 	var autoRunAlpha:float = abs(sin(autoRunTimer*PI))
 	if autoRunAlpha > 0:
 		TextDraw.outlinedGradient(Game.FMINIID,drawMain,drawAutoRunGradient,
@@ -117,7 +141,11 @@ func _input(event:InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed():
 		if !event.is_echo():
 			if event.keycode == KEY_F5: queue_redraw()
-			if roomTransitionPhase == 0 and roomTransitionTimer >= 0.6666666667:
+			var skipTransitionThreshold:float
+			match roomTransitionType:
+				ROOM_TRANSITION_TYPE.ENTER_LEVEL: skipTransitionThreshold = 0.6666666667
+				ROOM_TRANSITION_TYPE.WIN_LEVEL: skipTransitionThreshold = 0.3333333333
+			if roomTransitionPhase == 1 and roomTransitionTimer >= skipTransitionThreshold:
 				if event.keycode == KEY_SPACE:
 					roomTransitionPhase += 1
 					roomTransitionTimer = 0
@@ -129,8 +157,10 @@ func _input(event:InputEvent) -> void:
 
 func startLevel() -> void:
 	start()
-	roomTransitionPhase = 0
+	roomTransitionType = ROOM_TRANSITION_TYPE.ENTER_LEVEL
+	roomTransitionPhase = 1
 	roomTransitionTimer = 0
+	textOffsetAngle = 0
 
 func start() -> void:
 	Game.player = preload("res://scenes/player.tscn").instantiate()
@@ -147,6 +177,10 @@ func start() -> void:
 		component.queue_redraw()
 
 func restart() -> void:
+	Game.won = false
+	%winMenu.visible = false
+	roomTransitionPhase = -1
+	queue_redraw()
 	Game.player.pauseFrame = true
 	Game.player.queue_free()
 	for object in Game.objects.values():
@@ -159,8 +193,8 @@ func restart() -> void:
 	start()
 
 func inAnimation() -> bool:
-	if roomTransitionPhase == 0: return true
-	if roomTransitionPhase == 1 and roomTransitionTimer < 0.1: return true
+	if roomTransitionPhase == 0 or roomTransitionPhase == 1: return true
+	if roomTransitionPhase == 2 and roomTransitionTimer < 0.1: return true
 	if pauseAnimPhase != -1: return true
 	return false
 
@@ -170,9 +204,7 @@ func pause() -> void:
 	pauseAnimTimer = 0
 	%gameViewportCont.get_material().set_shader_parameter(&"darken", !paused)
 	%mouseBlocker.mouse_filter = MOUSE_FILTER_STOP
-	var pauseSound:AudioStreamPlayer = AudioManager.play(preload("res://resources/sounds/pause.wav"))
-	pauseSound.volume_linear = 0.85
-	pauseSound.pitch_scale = 0.6
+	AudioManager.play(preload("res://resources/sounds/pause.wav"), 0.85, 0.6)
 	if paused: saveSettings()
 	else: loadSettings()
 
@@ -196,6 +228,12 @@ func saveSettings() -> void:
 
 func autoRun() -> void:
 	Game.autoRun = !Game.autoRun
-	AudioManager.play(preload("res://resources/sounds/autoRun.wav")).pitch_scale = 1.0 if Game.autoRun else 0.7
+	AudioManager.play(preload("res://resources/sounds/autoRun.wav"),1 , 1.0 if Game.autoRun else 0.7)
 	autoRunTimer = 0
 	saveSettings()
+
+func win() -> void:
+	roomTransitionType = ROOM_TRANSITION_TYPE.WIN_LEVEL
+	roomTransitionPhase = 0
+	roomTransitionTimer = 0
+	textOffsetAngle = 0

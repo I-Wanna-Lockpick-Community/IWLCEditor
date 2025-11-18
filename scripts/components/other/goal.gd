@@ -13,11 +13,15 @@ const STAR:Texture2D = preload("res://assets/game/goal/star.png")
 const STAR_OUTLINE:Texture2D = preload("res://assets/game/goal/starOutline.png")
 const STAR_COLOR:Color = Color("#787828")
 const OMEGA:Texture2D = preload("res://assets/game/goal/omega.png")
+const OMEGA_WON:Texture2D = preload("res://assets/game/goal/omegaWon.png")
 func getSprite() -> Texture2D:
 	match type:
 		TYPE.STAR: return STAR
-		TYPE.OMEGA: return OMEGA
-		_: return NORMAL
+		TYPE.OMEGA: return OMEGA_WON if won else OMEGA
+		_: return STAR if won else NORMAL
+
+const KEY_PARTICLE_COLOR:Color = Color("#ffff00")
+const KEY_PARTICLE_2_COLOR:Color = Color("#ffffb4")
 
 const CREATE_PARAMETERS:Array[StringName] = [
 	&"position"
@@ -40,17 +44,23 @@ var floatAngle:float = 0
 var particleSpawnTimer:float = 0
 var starAngle:float = 0
 
+var won:bool = false
+
 func _init() -> void : size = Vector2(32,32)
+
+func win() -> void:
+	won = true
+	if type != TYPE.OMEGA:
+		for particle in %particles.get_children(): particle.hue = particleHue()
+	for i in 80: Game.particlesParent.add_child(KeyParticle.new(Game.player.position+Vector2(randf_range(-8,8),randf_range(-8,8)), i, KEY_PARTICLE_COLOR, 1))
+	for i in 60: Game.particlesParent.add_child(KeyParticle.new(Game.player.position+Vector2(randf_range(-8,8),randf_range(-8,8)), i, KEY_PARTICLE_2_COLOR, 0.6))
+	
 
 func _physics_process(delta:float):
 	particleSpawnTimer += delta
 	if particleSpawnTimer >= 0.1:
 		particleSpawnTimer -= 0.1
-		var particle:Particle = Particle.new()
-		#if has_won: particle.hue = 60
-		match type:
-			TYPE.STAR: particle.hue = 71
-			TYPE.OMEGA: particle.hue = 275
+		var particle:Particle = Particle.new(particleHue())
 		%particles.add_child(particle)
 		%particles.move_child(particle, 0)
 		return particle
@@ -82,6 +92,13 @@ func _draw() -> void:
 		RenderingServer.canvas_item_add_texture_rect(drawStar,Rect2(Vector2(-40,-40),Vector2(80,80)),STAR_OUTLINE,false,STAR_COLOR)
 		RenderingServer.canvas_item_add_texture_rect(drawStar,Rect2(Vector2(-24,-24),Vector2(48,48)),STAR_OUTLINE,false,Color(STAR_COLOR,0.5))
 
+func particleHue() -> float:
+	if won and type != TYPE.OMEGA: return 71
+	match type:
+		TYPE.STAR: return 71
+		TYPE.OMEGA: return 275
+	return 120
+
 class Particle extends Sprite2D: # taken from lpe
 
 	# this takes 58 frames to die
@@ -90,14 +107,15 @@ class Particle extends Sprite2D: # taken from lpe
 	var _scale := 0.1
 	var velocity := Vector2(0.1,0).rotated(deg_to_rad(randf() * 360.0))
 	# originally 85 (out of 360)
-	var hue := 120
-	var sat := 30
+	var hue:float
+	var sat:float = 30
 
-	func _init():
+	func _init(_hue:float) -> void:
+		hue = _hue
 		scale = Vector2(0.04, 0.04)
 		texture = preload("res://assets/game/goal/particle.png")
 	
-	func _physics_process(_delta: float) -> void:
+	func _physics_process(_delta:float) -> void:
 		if type == 1:
 			velocity *= 0.95
 		if mode == 0:
@@ -111,13 +129,43 @@ class Particle extends Sprite2D: # taken from lpe
 			if _scale <= 0:
 				queue_free()
 		sat = min((sat + 3), 255)
-		@warning_ignore("integer_division")
-		modulate = Color.from_hsv((hue - (sat / 12)) / 360.0, sat / 255.0, 1)
+		modulate = Color.from_hsv((hue - int(sat / 12)) / 360.0, sat / 255.0, 1)
 		scale = Vector2.ONE * _scale / 2.5
 		position += velocity
+
+class KeyParticle extends Sprite2D:
+	var speed:float
+	var direction:float
+	var rotationSpeed:float = 5
+	var alpha:float = 1
+
+	func _init(_position:Vector2,index:int,color:Color,speedMult:float) -> void:
+		position = _position
+		direction = 3.8830085198*index
+		rotation = randf_range(0,TAU)
+		speed = randf_range(2,8)
+		var size:float = 0.5+(speed-3)/5
+		scale = Vector2(size,size)
+		speed *= speedMult
+		modulate = color
+		texture = preload("res://assets/game/goal/keyParticle.png")
+
+	func _physics_process(_delta:float) -> void:
+		speed = max(0, speed - 0.03)
+		rotationSpeed = max(0, rotationSpeed - 0.1)
+		position += Vector2(speed,0).rotated(direction)
+		rotation += deg_to_rad(rotationSpeed)
+		if speed <= 0.1:
+			alpha = max(0, alpha - 0.02)
+			modulate.a = alpha
+			if alpha == 0: queue_free()	
 
 # ==== PLAY ==== #
 func start() -> void:
 	super()
 	floatAngle = 0
 	for particle in %particles.get_children(): particle.queue_free()
+
+func stop() -> void:
+	won = false
+	super()

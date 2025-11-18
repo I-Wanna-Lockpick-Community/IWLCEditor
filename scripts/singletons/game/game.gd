@@ -104,7 +104,8 @@ const BRIGHT_DARK:Array[Color] = [
 var playGame:PlayGame
 var world:World
 var tiles:TileMapLayer
-var objectsParent:Node
+var objectsParent:Node2D
+var particlesParent:Node2D
 
 var level:Level = Level.new()
 var anyChanges:bool = false:
@@ -184,15 +185,18 @@ var hideTimer:bool = false:
 	set(value):
 		hideTimer = value
 		updateWindowName()
-var timer:float
+var playTime:float
 var autoRun:bool = true
 var fullJumps:bool = false
 var fastAnimations:bool = false
+
+var won:bool = false
 
 func setWorld(_world:World) -> void:
 	world = _world
 	tiles = world.tiles
 	objectsParent = world.objectsParent
+	particlesParent = world.particlesParent
 	updateWindowName()
 
 func _process(delta:float) -> void:
@@ -220,7 +224,7 @@ func updateWindowName() -> void:
 		else: get_window().title = level.name + " - IWLCEditor"
 	else:
 		if hideTimer: get_window().title = "IWLCEditor"
-		else: get_window().title = "IWLCEditor - Time: " + formatTime(timer)
+		else: get_window().title = "IWLCEditor - Time: " + formatTime(playTime)
 
 func fasterAnims() -> void:
 	if !fastAnimations: return
@@ -262,6 +266,7 @@ func stopTest() -> void:
 	playState = PLAY_STATE.EDIT
 	GameChanges.saveBuffered = false
 	player.pauseFrame = true
+	won = false
 	await get_tree().process_frame
 	player.queue_free()
 	for object in objects.values():
@@ -287,7 +292,7 @@ func play() -> void:
 	if !levelStart: return Saving.loadError("No level start found,\nCannot play level.", "Play Error")
 	Saving.confirmAction = Saving.ACTION.SAVE_FOR_PLAY
 	Saving.save()
-	timer = 0
+	playTime = 0
 
 func playSaved() -> void:
 	editorWindowMode = get_window().mode
@@ -306,6 +311,7 @@ func playReadied() -> void:
 	playGame.startLevel()
 
 func edit() -> void:
+	won = false
 	awaitingEditor = true
 	playState = PLAY_STATE.EDIT
 	get_tree().change_scene_to_file("res://scenes/editor.tscn")
@@ -334,3 +340,27 @@ func formatTime(seconds:float) -> String:
 	if minutes: string += str(minutes) + "m "
 	if seconds: string += str(int(seconds)) + "s "
 	return string.trim_suffix(" ")
+
+func win(goal:Goal) -> void:
+	won = true
+	goal.win()
+	if goal.type == Goal.TYPE.OMEGA:
+		AudioManager.play(preload("res://resources/sounds/goal/deltaruneShine.wav"), 1.2, 0.8)
+		AudioManager.play(preload("res://resources/sounds/goal/winOmega.wav"))
+	else: AudioManager.play(preload("res://resources/sounds/goal/win.wav"), 0.9, 1.4)
+	if editor:
+		await timer(0.5)
+		stopTest()
+		editor.cameraZoom = 1
+		editor.editorCamera.zoom = Vector2.ONE
+		editor.home()
+	else:
+		playGame.win()
+
+func timer(time:float) -> Signal:
+	var t = Timer.new()
+	t.one_shot = true
+	get_tree().get_root().add_child(t)
+	t.timeout.connect(t.queue_free)
+	t.start(time)
+	return t.timeout

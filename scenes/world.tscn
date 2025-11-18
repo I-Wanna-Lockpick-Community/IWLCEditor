@@ -30,3 +30,6 @@ tile_set = SubResource("TileSet_w8frs")
 
 [node name="objectsParent" type="Node2D" parent="."]
 unique_name_in_owner = true
+
+[node name="particlesParent" type="Node2D" parent="."]
+unique_name_in_owner = true

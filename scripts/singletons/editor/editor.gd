@@ -408,6 +408,7 @@ func _input(event:InputEvent) -> void:
 				KEY_D: modes.setMode(MODE.DOOR)
 				KEY_S:
 					if Input.is_key_pressed(KEY_CTRL):
+						Saving.confirmAction = Saving.ACTION.NONE
 						if OS.has_feature('web'): Saving.save()
 						else:
 							if Input.is_key_pressed(KEY_SHIFT): Saving.saveAs()
@@ -529,7 +530,7 @@ func _levelShortNumberSet(string:String) -> void:
 
 func autoRun() -> void:
 	Game.autoRun = !Game.autoRun
-	AudioManager.play(preload("res://resources/sounds/autoRun.wav")).pitch_scale = 1.0 if Game.autoRun else 0.7
+	AudioManager.play(preload("res://resources/sounds/autoRun.wav"), 1.0, 1.0 if Game.autoRun else 0.7)
 	autoRunTimer = 0
 	%settingsMenu.gameSettings.closed(%settingsMenu.configFile)
 	%settingsMenu.configFile.save("user://config.ini")
