@@ -355,7 +355,7 @@ func win(goal:Goal) -> void:
 		editor.editorCamera.zoom = Vector2.ONE
 		editor.home()
 	else:
-		playGame.win()
+		playGame.win(goal)
 
 func timer(time:float) -> Signal:
 	var t = Timer.new()

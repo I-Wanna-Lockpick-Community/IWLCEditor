@@ -49,7 +49,8 @@ func _process(delta:float) -> void:
 				var nextPhase:float
 				match roomTransitionType:
 					ROOM_TRANSITION_TYPE.ENTER_LEVEL: nextPhase = 0.5833333333
-					ROOM_TRANSITION_TYPE.WIN_LEVEL: nextPhase = 1; textOffsetAngle = min(textOffsetAngle + 67.5*delta, 90)
+					ROOM_TRANSITION_TYPE.WIN_LEVEL,\
+					ROOM_TRANSITION_TYPE.WIN_OMEGA: nextPhase = 1; textOffsetAngle = min(textOffsetAngle + 67.5*delta, 90)
 				roomTransitionColor.a = roomTransitionTimer/nextPhase
 				queue_redraw()
 				if roomTransitionTimer >= nextPhase:
@@ -59,7 +60,8 @@ func _process(delta:float) -> void:
 				var nextPhase:float
 				match roomTransitionType:
 					ROOM_TRANSITION_TYPE.ENTER_LEVEL: nextPhase = 2.5; textOffsetAngle = min(textOffsetAngle + 135*delta,90)
-					ROOM_TRANSITION_TYPE.WIN_LEVEL: nextPhase = 1.6666666667; textOffsetAngle = min(textOffsetAngle + 67.5*delta, 90)
+					ROOM_TRANSITION_TYPE.WIN_LEVEL,\
+					ROOM_TRANSITION_TYPE.WIN_OMEGA: nextPhase = 1.6666666667; textOffsetAngle = min(textOffsetAngle + 67.5*delta, 90)
 				roomTransitionColor.a = 1
 				queue_redraw()
 				if roomTransitionTimer >= nextPhase:
@@ -126,8 +128,8 @@ func _draw() -> void:
 				TextDraw.outlinedCentered2(Game.FLEVELID,drawMain,Game.level.number,Color.WHITE,Color.BLACK,24,Vector2(400,216)+textWiggle+textOffset)
 				TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,Game.level.name,Color.WHITE,Color.BLACK,36,Vector2(400,280)+textWiggle2+textOffset)
 				TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,Game.level.author,Color.BLACK,Color.WHITE,36,Vector2(400,376)+textWiggle+textOffset)
-			ROOM_TRANSITION_TYPE.WIN_LEVEL:
-				TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,"Congratulations!",Color.WHITE,Color.BLACK,36,Vector2(400,280)+textWiggle2+textOffset)
+			ROOM_TRANSITION_TYPE.WIN_LEVEL: TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,"Congratulations!",Color.WHITE,Color.BLACK,36,Vector2(400,280)+textWiggle2+textOffset)
+			ROOM_TRANSITION_TYPE.WIN_OMEGA: TextDraw.outlinedCentered2(Game.FLEVELNAME,drawMain,"YOWZA!",Color.WHITE,Color.BLACK,36,Vector2(400,280)+textWiggle2+textOffset)
 	var autoRunAlpha:float = abs(sin(autoRunTimer*PI))
 	if autoRunAlpha > 0:
 		TextDraw.outlinedGradient(Game.FMINIID,drawMain,drawAutoRunGradient,
@@ -189,6 +191,7 @@ func restart() -> void:
 	for component in Game.components.values():
 		component.stop()
 		component.queue_redraw()
+	for particle in Game.particlesParent.get_children(): particle.queue_free()
 	await get_tree().process_frame
 	start()
 
@@ -232,8 +235,9 @@ func autoRun() -> void:
 	autoRunTimer = 0
 	saveSettings()
 
-func win() -> void:
-	roomTransitionType = ROOM_TRANSITION_TYPE.WIN_LEVEL
+func win(goal:Goal) -> void:
+	if goal.type == Goal.TYPE.OMEGA: roomTransitionType = ROOM_TRANSITION_TYPE.WIN_OMEGA
+	else: roomTransitionType = ROOM_TRANSITION_TYPE.WIN_LEVEL
 	roomTransitionPhase = 0
 	roomTransitionTimer = 0
 	textOffsetAngle = 0
