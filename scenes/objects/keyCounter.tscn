@@ -3,6 +3,5 @@
 [ext_resource type="Script" uid="uid://dfersmim7c45o" path="res://scripts/components/other/keyCounter.gd" id="1_oobvd"]
 
 [node name="keyCounter" type="Node2D"]
-z_index = 1
 script = ExtResource("1_oobvd")
 metadata/_custom_type_script = "uid://dfersmim7c45o"
