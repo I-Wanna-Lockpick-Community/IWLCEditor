@@ -18,7 +18,7 @@ const GATE_FILL:Texture2D = preload("res://assets/game/door/gateFill.png")
 const CRUMBLED_1X1:Texture2D = preload("res://assets/game/door/aura/crumbled1x1.png")
 const CRUMBLED_1X2:Texture2D = preload("res://assets/game/door/aura/crumbled1x2.png")
 const CRUMBLED_2X2:Texture2D = preload("res://assets/game/door/aura/crumbled2x2.png")
-const CRUMBLED_BASE:Texture2D = preload("res://assets/game/door/aura/crumbledBase.png")
+const CRUMBLED_MATERIAL:ShaderMaterial = preload("res://resources/materials/crumbledDrawMaterial.tres")
 
 const PAINTED_1X1:Texture2D = preload("res://assets/game/door/aura/painted1x1.png")
 const PAINTED_1X2:Texture2D = preload("res://assets/game/door/aura/painted1x2.png")
@@ -199,12 +199,14 @@ static func drawDoor(doorDrawScaled:RID,doorDrawAuraBreaker:RID,doorDrawGlitch:R
 
 static func drawAuras(objectDrawCrumbled:RID,objectDrawPainted:RID,objectDrawFrozen:RID,objectFrozen:bool,objectCrumbled:bool,objectPainted:bool,rect:Rect2) -> void:
 	if objectCrumbled:
-		RenderingServer.canvas_item_set_material(objectDrawCrumbled,Game.NO_MATERIAL.get_rid())
+		RenderingServer.canvas_item_set_material(objectDrawCrumbled,CRUMBLED_MATERIAL.get_rid())
+		RenderingServer.canvas_item_set_instance_shader_parameter(objectDrawCrumbled, &"size", Vector2(0,0))
 		if rect.size == Vector2(32,32): RenderingServer.canvas_item_add_texture_rect(objectDrawCrumbled,rect,CRUMBLED_1X1)
 		elif rect.size == Vector2(32,64): RenderingServer.canvas_item_add_texture_rect(objectDrawCrumbled,rect,CRUMBLED_1X2)
 		elif rect.size == Vector2(64,64): RenderingServer.canvas_item_add_texture_rect(objectDrawCrumbled,rect,CRUMBLED_2X2)
 		else:
-			RenderingServer.canvas_item_add_nine_patch(objectDrawCrumbled,rect,TEXTURE_RECT,CRUMBLED_BASE,Vector2(16,18),Vector2(16,14),TILE,TILE,true)
+			RenderingServer.canvas_item_set_instance_shader_parameter(objectDrawCrumbled, &"size", rect.size)
+			RenderingServer.canvas_item_add_rect(objectDrawCrumbled,rect,Color.WHITE)
 	if objectPainted:
 		RenderingServer.canvas_item_set_material(objectDrawPainted,PAINTED_MATERIAL.get_rid())
 		RenderingServer.canvas_item_set_instance_shader_parameter(objectDrawPainted, &"scale", Vector2(0,0))
