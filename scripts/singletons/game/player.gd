@@ -126,19 +126,29 @@ func _physics_process(_delta:float) -> void:
 	var moveDirection:float = Input.get_axis(&"left", &"right")
 	velocity.x = xSpeed*FPS*moveDirection
 
-	if is_on_floor(): canDoubleJump = true
+	if pauseFrame:
+		pauseFrame = false
+	else:
+		cantSave = false
+		for area in %near.get_overlapping_areas(): near(area)
+		for area in %interact.get_overlapping_areas(): interacted(area)
+		GameChanges.process()
+		previousPosition = position
+		previousIsOnFloor = is_on_floor()
+
+	var onAnything:bool = Game.tiles in %floor.get_overlapping_bodies()
+	for area in %floor.get_overlapping_areas():
+		if area.get_parent() is Door:
+			if !area.get_parent().justOpened: onAnything = true
+	if is_on_floor() and onAnything:
+		print("yup")
+		canDoubleJump = true
+
 	if Input.is_action_just_pressed(&"jump"):
 		if is_on_floor():
-			var jumpedOffOpeningDoor:bool = false
-			var jumpedOffAnything:bool = Game.tiles in %floor.get_overlapping_bodies()
-			for area in %floor.get_overlapping_areas():
-				if area.get_parent() is Door:
-					jumpedOffAnything = true
-					if area.get_parent().justOpened: jumpedOffOpeningDoor = true
-			if !jumpedOffAnything: jumpedOffOpeningDoor = true
 			velocity.y = -JUMP_SPEED*FPS
 			AudioManager.play(preload("res://resources/sounds/player/jump.wav"))
-			if jumpedOffOpeningDoor:
+			if !onAnything:
 				velocity.y *= 0.45
 				canDoubleJump = false
 		elif canDoubleJump:
@@ -157,16 +167,6 @@ func _physics_process(_delta:float) -> void:
 	elif velocity.y >= 0.05*FPS: %sprite.play("fall")
 	elif moveDirection: %sprite.play("run")
 	else: %sprite.play("idle")
-
-	if pauseFrame:
-		pauseFrame = false
-	else:
-		cantSave = false
-		for area in %near.get_overlapping_areas(): near(area)
-		for area in %interact.get_overlapping_areas(): interacted(area)
-		GameChanges.process()
-		previousPosition = position
-		previousIsOnFloor = is_on_floor()
 
 func _process(delta:float) -> void:
 	masterShineAngle += delta*4.1887902048 # 4 degrees per frame, 60fps
