@@ -28,8 +28,10 @@ func getProblemName() -> String:
 	match [modId, type]:
 		[&"NstdLockSize", &"NstdLockSize"]: return "Nonstandard Lock Size"
 		[&"MoreLockConfigs", &"NstdLockConfig"]: return "Nonstandard Lock Configuration"
-		[&"ZeroCopies",&"ZeroCopies"]: return "Zero Copies"
+		[&"ZeroCopies",&"ZeroCopies"]: return "Zero Copy Door"
 		[&"ZeroCostLock",&"ZeroCostLock"]: return "Zero Cost Lock"
+		[&"InfCopies",&"InfCopies"]: return "Infinite Copy Door"
+		[&"NoneColor",&"NoneColor"]: return "None Color"
 
 		[&"C1", &"RemoteLock"]: return "Remote Lock"
 		[&"C1", &"LockNegated"]: return "Negated Lock"

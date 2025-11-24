@@ -102,10 +102,14 @@ func findProblems(component:GameComponent) -> void:
 			findColorProblems(component, component.colorSpend)
 			if &"ZeroCopies" in modsWindow.modsRemoved:
 				noteProblem(&"ZeroCopies", &"ZeroCopies", component, component.copies.eq(0))
+			if &"InfCopies" in modsWindow.modsRemoved:
+				noteProblem(&"InfCopies", &"InfCopies", component, component.infCopies.neq(0))
 		KeyCounterElement:
 			findColorProblems(component, component.color)
 
 func findColorProblems(component:GameComponent, color:Game.COLOR) -> void:
+	if &"NoneColor" in modsWindow.modsRemoved:
+		noteProblem(&"NoneColor", &"NoneColor", component, color == Game.COLOR.NONE)
 	if &"C2" in modsWindow.modsRemoved:
 		noteProblem(&"C2", &"DynamiteColor", component, color == Game.COLOR.DYNAMITE)
 		noteProblem(&"C2", &"QuicksilverColor", component, color == Game.COLOR.QUICKSILVER)

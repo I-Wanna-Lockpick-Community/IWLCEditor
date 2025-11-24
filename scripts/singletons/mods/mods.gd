@@ -12,11 +12,6 @@ static var mods:Dictionary[StringName, Mod] = {
 		"Adds predefined lock configurations for 7, 9, 10, 11, and 13 locks, as well as an alternative configuration for 24 locks.\nDesigns by JustImagineIt and themetah",
 		[&"NstdLockConfig"]
 	),
-	&"InfCopies": Mod.new(
-		"Infinite Copy Doors",
-		"Allows doors to have infinite copies",
-		[&"InfCopies"]
-	),
 	&"ZeroCopies": Mod.new(
 		"Zero Copy Doors",
 		"Allows doors to have zero copies. Walking into zero-copy doors destroys them at no cost or check while updating glitch colors, and copies may be added to them in any direction with master keys",
@@ -26,6 +21,11 @@ static var mods:Dictionary[StringName, Mod] = {
 		"Zero Cost Locks",
 		"Also known as lockless locks",
 		[&"ZeroCostLock"], true
+	),
+	&"InfCopies": Mod.new(
+		"Infinite Copy Doors",
+		"Allows doors to have infinite copies",
+		[&"InfCopies"]
 	),
 	&"NoneColor": Mod.new(
 		"None Color",
