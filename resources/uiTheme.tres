@@ -1,9 +1,13 @@
-[gd_resource type="Theme" load_steps=43 format=3 uid="uid://bvfthh0vm4fbp"]
+[gd_resource type="Theme" load_steps=52 format=3 uid="uid://bvfthh0vm4fbp"]
 
 [ext_resource type="FontFile" uid="uid://cjub6sxbu8elx" path="res://resources/fonts/RobotoMono-SemiBold.ttf" id="1_bmmxy"]
 [ext_resource type="FontFile" uid="uid://c1cbi8by5johg" path="res://resources/fonts/fTalk.fnt" id="2_0b2ua"]
 [ext_resource type="Texture2D" uid="uid://4b1bg1fe3nw5" path="res://assets/ui/mods/radioChecked.png" id="3_w58ka"]
 [ext_resource type="Texture2D" uid="uid://b65bcyk6wubvb" path="res://assets/ui/mods/radio.png" id="4_mie15"]
+[ext_resource type="Texture2D" uid="uid://dj1ughivew7b0" path="res://resources/modTree/expanded.tres" id="5_1fv4g"]
+[ext_resource type="Texture2D" uid="uid://c0ybiw7l0x5x3" path="res://resources/modTree/collapsed.tres" id="6_3rwxy"]
+[ext_resource type="Texture2D" uid="uid://cwp2x4h8froh8" path="res://resources/modTree/checked.tres" id="7_8clmk"]
+[ext_resource type="Texture2D" uid="uid://cr2it5ofnc1gl" path="res://resources/modTree/unchecked.tres" id="8_5vlxa"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jqlop"]
 content_margin_left = 2.0
@@ -76,6 +80,11 @@ grow_begin = -10.0
 grow_end = -10.0
 thickness = 2
 
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_1fv4g"]
+color = Color(0.49803922, 0.49803922, 0.49803922, 1)
+grow_begin = -4.0
+grow_end = -4.0
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jnf66"]
 content_margin_left = 2.0
 content_margin_top = 2.0
@@ -101,6 +110,13 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.5764706, 0.5764706, 0.5764706, 1)
 corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1fv4g"]
+bg_color = Color(1, 1, 1, 0.07058824)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_js5w3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5t4ci"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ffcy4"]
 bg_color = Color(0, 0.5506986, 0.871841, 0.53333336)
@@ -235,6 +251,18 @@ _source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"8\" height=\"8\"><p
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_eyl0i"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3rwxy"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0.07)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eyl0i"]
 bg_color = Color(0.1254902, 0.1254902, 0.1254902, 1)
 
@@ -296,6 +324,9 @@ HSeparator/styles/separator = SubResource("StyleBoxLine_gbm3x")
 HSeparatorFancy/base_type = &"HSeparator"
 HSeparatorFancy/constants/separation = 12
 HSeparatorFancy/styles/separator = SubResource("StyleBoxLine_eyl0i")
+HSeparatorThin/base_type = &"HSeparator"
+HSeparatorThin/constants/separation = 1
+HSeparatorThin/styles/separator = SubResource("StyleBoxLine_1fv4g")
 Label/font_sizes/font_size = 12
 Label/fonts/font = ExtResource("1_bmmxy")
 LineEdit/font_sizes/font_size = 12
@@ -306,6 +337,18 @@ MarginContainer/constants/margin_bottom = 4
 MarginContainer/constants/margin_left = 4
 MarginContainer/constants/margin_right = 4
 MarginContainer/constants/margin_top = 4
+ModTreeItem/base_type = &"Button"
+ModTreeItem/colors/font_color = Color(0.69803923, 0.69803923, 0.69803923, 1)
+ModTreeItem/colors/font_focus_color = Color(0.69803923, 0.69803923, 0.69803923, 1)
+ModTreeItem/colors/font_hover_color = Color(0.9490196, 0.9490196, 0.9490196, 1)
+ModTreeItem/colors/font_hover_pressed_color = Color(0.9490196, 0.9490196, 0.9490196, 1)
+ModTreeItem/colors/font_pressed_color = Color(0.69803923, 0.69803923, 0.69803923, 1)
+ModTreeItem/font_sizes/font_size = 12
+ModTreeItem/fonts/font = ExtResource("1_bmmxy")
+ModTreeItem/styles/hover = SubResource("StyleBoxFlat_1fv4g")
+ModTreeItem/styles/hover_pressed = SubResource("StyleBoxFlat_1fv4g")
+ModTreeItem/styles/normal = SubResource("StyleBoxEmpty_js5w3")
+ModTreeItem/styles/pressed = SubResource("StyleBoxEmpty_5t4ci")
 MultiselectPanel/base_type = &"Panel"
 MultiselectPanel/styles/panel = SubResource("StyleBoxFlat_ffcy4")
 NumberEditPanelContainer/base_type = &"PanelContainer"
@@ -375,7 +418,12 @@ TextEdit/styles/read_only = SubResource("StyleBoxEmpty_0b2ua")
 Tree/constants/v_separation = 2
 Tree/font_sizes/font_size = 12
 Tree/fonts/font = ExtResource("1_bmmxy")
+Tree/icons/arrow = ExtResource("5_1fv4g")
+Tree/icons/arrow_collapsed = ExtResource("6_3rwxy")
+Tree/icons/checked = ExtResource("7_8clmk")
+Tree/icons/unchecked = ExtResource("8_5vlxa")
 Tree/styles/focus = SubResource("StyleBoxEmpty_eyl0i")
+Tree/styles/hovered = SubResource("StyleBoxFlat_3rwxy")
 Tree/styles/panel = SubResource("StyleBoxFlat_eyl0i")
 VScrollBar/styles/scroll = SubResource("StyleBoxFlat_cf1xj")
 VSeparator/constants/separation = 2

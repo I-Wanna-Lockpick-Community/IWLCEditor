@@ -5,16 +5,44 @@ class_name SelectMods
 @onready var nextButton:Button = %nextButton
 @onready var modsWindow = get_parent()
 
-# the way the picker is laid out
+# the way the select tree is laid out
 static var ModTree:Array = [
-	SubTree.new("Benign", [&"NstdLockSize",&"MoreLockConfigs",&"ZeroCostLock",&"ZeroCopies"]),
-	SubTree.new("I Wanna Lockpick: Continued", [&"C1",&"C2",&"C3",&"C4",&"C5"]),
-	SubTree.new("Lockpick Editor Compatibility", [&"InfCopies",&"NoneColor",]),
-	SubTree.new("Possibly Misleading", [&"DisconnectedLock",&"OutOfBounds"])
+	SubTree.new(
+		"Benign",
+		"Mods that don't do much.",
+		[&"NstdLockSize",&"MoreLockConfigs",&"ZeroCostLock",&"ZeroCopies"]
+	),
+	SubTree.new(
+		"I Wanna Lockpick: Continued",
+		"Mods that were made for the I Wanna Lockpick: Continued modpack.",
+		[&"C1",&"C2",&"C3",&"C4",&"C5"]
+	),
+	SubTree.new(
+		"Lockpick Editor Compatibility",
+		"Mods to mimic unique behaviour from L4Vo5's Lockpick Editor",
+		[&"InfCopies",&"NoneColor"]
+	),
+	SubTree.new(
+		"Possibly Misleading",
+		"Surely this is a good idea",
+		[&"DisconnectedLock",&"OutOfBounds"]
+	)
 ]
+
+class SubTree extends RefCounted:
+	var label:String
+	var description:String
+	var mods:Array[StringName] # cant recurse yet; maybe at some point
+
+	func _init(_label:String, _description:String, _mods:Array[StringName]) -> void:
+		label = _label
+		description = _description
+		mods = _mods
 
 var undoStack:Array[RefCounted] = [UndoSeparator.new()]
 var saveBuffered:bool = false
+
+var hoveredItem:Control # the hovered modtree item
 
 func setup() -> void:
 	updateModpacks()
@@ -46,27 +74,25 @@ func updateVersions() -> void:
 		%versions.visible = false
 
 func updateMods() -> void:
-	%mods.clear()
-	var root = %mods.create_item()
+	for child in %mods.get_children(): child.queue_free()
 	for element in ModTree:
 		if element is StringName:
-			addModTreeItem(root, element)
+			addModTreeItem(%mods, element)
 		elif element is SubTree:
-			var subRoot:TreeItem = %mods.create_item(root)
-			subRoot.set_text(0, element.label)
-			subRoot.set_selectable(0, false)
+			var subTree:ModTreeSubTree = preload("res://scenes/modTreeSubTree.tscn").instantiate()
+			subTree.selectMods = self
+			subTree.subTree = element
+			%mods.add_child(subTree)
 			for subElement in element.mods:
-				addModTreeItem(subRoot, subElement)
+				addModTreeItem(subTree.cont, subElement)
 
-func addModTreeItem(root:TreeItem, id:StringName) -> void:
-	var mod:Mods.Mod = Mods.mods[id]
-	var item:TreeItem = %mods.create_item(root)
-	item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
-	item.set_text(0, mod.name)
-	item.set_editable(0, true)
-	item.set_metadata(0, id)
-	item.set_checked(0, mod.tempActive)
-	mod.treeItem = item
+func addModTreeItem(root:VBoxContainer, id:StringName) -> void:
+	var item:ModTreeItem = preload("res://scenes/modTreeItem.tscn").instantiate()
+	item.selectMods = self
+	item.modId = id
+	item.mod = Mods.mods[id]
+	Mods.mods[id].treeItem = item
+	root.add_child(item)
 
 func setMod(mod:Mods.Mod, active:bool) -> bool:
 	if mod.tempActive == active: return false
@@ -88,21 +114,38 @@ func _modpackSelected(index:int, manual:bool=false) -> void:
 	if index != -1 and !manual:
 		for modId in Mods.mods.keys():
 			if !Mods.mods[modId].disclosatory: addChange(ModChange.new(self, modId, modId in modsWindow.tempActiveVersion.mods))
-	setInfoModpack(modsWindow.tempActiveModpack)
-	if !manual: bufferSave()
+	if !manual:
+		setInfoModpack(modsWindow.tempActiveModpack)
+		bufferSave()
 
-func _modsDefocused() -> void:
-	if !has_node("%mods"): return
-	%mods.deselect_all()
-	setInfoModpack(modsWindow.tempActiveModpack)
-	bufferSave()
+func _treeItemHovered(item:Control) -> void:
+	hoveredItem = item
+	if item is ModTreeItem:
+		%info.visible = true
+		%noModpackInfo.visible = false
+		%infoName.text = item.mod.name
 
-func _modsSelected() -> void:
-	var item:TreeItem = %mods.get_selected()
-	if !item: return
-	var mod:Mods.Mod = Mods.mods[item.get_metadata(0)]
-	if addChange(ModChange.new(self, item.get_metadata(0), item.is_checked(0))): findModpack()
-	setInfoMod(mod)
+		%modpackInfo.visible = false
+		%infoDescription.text = item.mod.description + "\n\n" + Mods.listDependencies(item.mod) + "\n\n" + Mods.listIncompatibilities(item.mod)
+		%versionInfo.visible = false
+	elif item is ModTreeSubTree:
+		%info.visible = true
+		%noModpackInfo.visible = false
+		%infoName.text = item.subTree.label
+
+		%modpackInfo.visible = false
+		%infoDescription.text = item.subTree.description
+		%versionInfo.visible = false
+
+func _treeItemUnhovered(item:Control) -> void:
+	if item != hoveredItem: return
+	hoveredItem = null
+	setInfoModpack(modsWindow.tempActiveModpack)
+
+func _modChanged(mod:StringName, toggled_on:bool) -> void:
+	if addChange(ModChange.new(self, mod, toggled_on)):
+		findModpack()
+		bufferSave()
 
 func findModpack() -> void:
 	# get the current modpack (and version) (or none) from selected Mods
@@ -137,23 +180,6 @@ func setInfoModpack(modpack:Mods.Modpack) -> void:
 
 func _linkClicked(meta):
 	OS.shell_open(str(meta))
-
-func setInfoMod(mod:Mods.Mod) -> void:
-	%info.visible = true
-	%noModpackInfo.visible = false
-	%infoName.text = mod.name
-
-	%modpackInfo.visible = false
-	%infoDescription.text = mod.description + "\n\n" + Mods.listDependencies(mod) + "\n\n" + Mods.listIncompatibilities(mod)
-	%versionInfo.visible = false
-
-class SubTree extends RefCounted:
-	var label:String
-	var mods:Array[StringName] # cant recurse yet; maybe at some point
-
-	func _init(_label:String, _mods:Array[StringName]) -> void:
-		label = _label
-		mods = _mods
 
 # because we want to be able to undo here
 func bufferSave() -> void:
@@ -209,12 +235,12 @@ class ModChange extends Change:
 			cancelled = true
 			return
 		Mods.mods[mod].tempActive = after
-		Mods.mods[mod].treeItem.set_checked(0, after)
+		Mods.mods[mod].treeItem.button.button_pressed = after
 		updateArrays(after)
 
 	func undo() -> void:
 		Mods.mods[mod].tempActive = before
-		Mods.mods[mod].treeItem.set_checked(0, before)
+		Mods.mods[mod].treeItem.button.button_pressed = before
 		updateArrays(before)
 	
 	func updateArrays(changedTo:bool) -> void:

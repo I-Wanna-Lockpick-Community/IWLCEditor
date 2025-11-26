@@ -94,7 +94,7 @@ static var modpacks:Dictionary[StringName, Modpack] = {
 				"202?-??-??",
 				"Includes mechanics from C1-C5. If you want to submit levels for IWL:C, you should use this.",
 				"https://github.com/I-Wanna-Lockpick-Community/IWannaLockpick-Continued", # change this to the github releases thing
-				[&"ZeroCostLock",&"C1", &"C2", &"C3", &"C4", &"C5"]
+				[&"C1", &"C2", &"C3", &"C4", &"C5"]
 			)
 		]
 	)
@@ -190,7 +190,7 @@ class Mod extends RefCounted:
 	var incompatibilities:Array[StringName]
 	var disclosatory:bool
 
-	var treeItem:TreeItem # for the menu
+	var treeItem:ModTreeItem # for the menu
 	var problems:Dictionary[StringName, Array] # dictionary[problemtype, [gamecomponent]]
 	var selectButton:FindProblems.ModSelectButton # for findproblems
 

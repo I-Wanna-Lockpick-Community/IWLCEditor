@@ -1,0 +1,63 @@
+[gd_scene load_steps=7 format=3 uid="uid://rndsu7u1c37m"]
+
+[ext_resource type="Theme" uid="uid://bvfthh0vm4fbp" path="res://resources/uiTheme.tres" id="1_qs7eh"]
+[ext_resource type="Script" uid="uid://dxdpu2eoknvr6" path="res://scripts/nodes/modTreeItem.gd" id="2_bp2j1"]
+[ext_resource type="Texture2D" uid="uid://cr2it5ofnc1gl" path="res://resources/modTree/unchecked.tres" id="2_rlln3"]
+[ext_resource type="FontFile" uid="uid://cjub6sxbu8elx" path="res://resources/fonts/RobotoMono-SemiBold.ttf" id="3_bp2j1"]
+[ext_resource type="Texture2D" uid="uid://o5pfoemsivxw" path="res://assets/ui/mods/disclosatory.png" id="5_bp2j1"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_6fadb"]
+resource_local_to_scene = true
+font = ExtResource("3_bp2j1")
+font_size = 12
+font_color = Color(0.69803923, 0.69803923, 0.69803923, 1)
+
+[node name="modTreeItem" type="MarginContainer"]
+custom_minimum_size = Vector2(0, 20)
+offset_right = 323.0
+offset_bottom = 17.0
+size_flags_horizontal = 3
+theme = ExtResource("1_qs7eh")
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+script = ExtResource("2_bp2j1")
+
+[node name="button" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ModTreeItem"
+toggle_mode = true
+alignment = 0
+
+[node name="c" type="HBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="icon" type="TextureRect" parent="c"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("2_rlln3")
+
+[node name="label" type="Label" parent="c"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Nonstandard Lock Sizes"
+label_settings = SubResource("LabelSettings_6fadb")
+
+[node name="disclosatory" type="TextureRect" parent="c"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "This mod is disclosatory, which means it is only declaring the use of an edge case.
+It doesn't introduce new mechanics and so is compatible with but optional for all relevant modpacks."
+texture = ExtResource("5_bp2j1")
+
+[connection signal="mouse_entered" from="button" to="." method="_hover"]
+[connection signal="mouse_exited" from="button" to="." method="_unhover"]
+[connection signal="toggled" from="button" to="." method="_toggled"]

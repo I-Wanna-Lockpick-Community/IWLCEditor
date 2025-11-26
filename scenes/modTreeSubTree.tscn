@@ -1,0 +1,46 @@
+[gd_scene load_steps=4 format=3 uid="uid://hkrgvpay27fr"]
+
+[ext_resource type="Theme" uid="uid://bvfthh0vm4fbp" path="res://resources/uiTheme.tres" id="1_3r4ol"]
+[ext_resource type="Script" uid="uid://b16jdtb55wnxx" path="res://scripts/nodes/modTreeSubTree.gd" id="2_4np6p"]
+
+[sub_resource type="DPITexture" id="DPITexture_4np6p"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"none\" stroke=\"#b2b2b2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-opacity=\".45\" stroke-width=\"2\" d=\"m5 7 3 3 3-3\"/></svg>
+"
+
+[node name="modTreeSubTree" type="VBoxContainer"]
+offset_right = 245.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+theme = ExtResource("1_3r4ol")
+script = ExtResource("2_4np6p")
+
+[node name="button" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+theme_type_variation = &"ModTreeItem"
+toggle_mode = true
+button_pressed = true
+text = "Benign"
+icon = SubResource("DPITexture_4np6p")
+alignment = 0
+
+[node name="c" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="cont" type="VBoxContainer" parent="c"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="sep" type="HSeparator" parent="."]
+layout_mode = 2
+theme_type_variation = &"HSeparatorThin"
+
+[connection signal="mouse_entered" from="button" to="." method="_hover"]
+[connection signal="mouse_exited" from="button" to="." method="_unhover"]
+[connection signal="toggled" from="button" to="." method="_toggled"]
