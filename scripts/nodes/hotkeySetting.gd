@@ -34,17 +34,17 @@ func equalToDefault() -> bool:
 		if !default[i].is_match(events[i]): return false
 	return true
 
-func _reset():
+func _reset(to:Array[InputEvent]=default):
 	for button in buttons.duplicate(): button.remove()
 	buttons.clear()
 	InputMap.action_erase_events(action)
-	for event in default:
+	for event in to:
 		InputMap.action_add_event(action, event)
 		var button:HotkeySettingButton = HotkeySettingButton.new(self)
 		button.event = event
 		%buttons.add_child(button)
 		buttons.append(button)
-	%reset.disabled = true
+	updateReset()
 
 class HotkeySettingButton extends Button:
 	var hotkey:HotkeySetting

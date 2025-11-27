@@ -42,6 +42,7 @@ window/per_pixel_transparency/allowed=true
 modUI="UI affected by mod changes"
 explained=""
 hotkeyButton=""
+hotkeySetting=""
 
 [input]
 

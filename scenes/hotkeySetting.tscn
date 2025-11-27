@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://d3qyof2c7im6m" path="res://assets/ui/settings/addHotkey.png" id="3_qjjgt"]
 [ext_resource type="Texture2D" uid="uid://bidnqtmi23now" path="res://assets/ui/settings/resetHotkey.png" id="4_j64qt"]
 
-[node name="hotkeySetting" type="HBoxContainer"]
+[node name="hotkeySetting" type="HBoxContainer" groups=["hotkeySetting"]]
 custom_minimum_size = Vector2(0, 30)
 offset_right = 269.0
 offset_bottom = 21.0

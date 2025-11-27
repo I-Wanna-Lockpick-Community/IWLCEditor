@@ -67,11 +67,16 @@ func opened() -> void:
 	%levelAuthor.text = Game.level.author
 	%fileDialogWorkaround.button_pressed = configFile.get_value("editor", "fileDialogWorkaround", false)
 	%fullscreen.button_pressed = configFile.get_value("editor", "fullscreen", false)
+	for setting in get_tree().get_nodes_in_group("hotkeySetting"):
+		InputMap.action_erase_events(setting.action)
+		setting._reset(configFile.get_value("editor", "hotkey_"+setting.action, setting.default))
 	%gameSettings.opened(configFile)
 
 func closed() -> void:
 	configFile.set_value("editor", "fileDialogWorkaround", %fileDialogWorkaround.button_pressed)
 	configFile.set_value("editor", "fullscreen", %fullscreen.button_pressed)
+	for setting in get_tree().get_nodes_in_group("hotkeySetting"):
+		configFile.set_value("editor", "hotkey_"+setting.action, InputMap.action_get_events(setting.action))
 	%gameSettings.closed(configFile)
 	configFile.save("user://config.ini")
 
