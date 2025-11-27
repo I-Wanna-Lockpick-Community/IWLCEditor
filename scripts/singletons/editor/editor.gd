@@ -398,45 +398,35 @@ func _input(event:InputEvent) -> void:
 			if quickSet.quick: quickSet.receiveKey(event); return
 			if focusDialog.interacted and focusDialog.interacted.receiveKey(event): return
 			if focusDialog.focused and focusDialog.receiveKey(event): return
-			if event.is_action_pressed(&"editStartPlaytest"):
-				if !topBar.play.disabled:
-					var ctrlHeld:bool = Input.is_key_pressed(KEY_CTRL)
-					await get_tree().process_frame
-					if ctrlHeld: Game.playTest(Game.latestSpawn)
-					else: Game.playTest(Game.levelStart)
+			if event.is_action_pressed(&"editStartPlaytest") and !topBar.play.disabled: await get_tree().process_frame; Game.playTest(Game.levelStart)
+			elif event.is_action_pressed(&"editStartPlaytestFromState") and !topBar.play.disabled: await get_tree().process_frame; Game.playTest(Game.latestSpawn)
+			elif event.is_action_pressed(&"editStopPlaytest") and Game.playstate == Game.PLAY_STATE.PAUSED: Game.stopTest()
+			elif event.is_action_pressed(&"editModeSelect"): modes.setMode(MODE.SELECT); focusDialog.defocus(); componentDragged = null; multiselect.deselect()
+			elif event.is_action_pressed(&"editModeTile"): modes.setMode(MODE.TILE)
+			elif event.is_action_pressed(&"editModeKey"): modes.setMode(MODE.KEY)
+			elif event.is_action_pressed(&"editModeDoor"): modes.setMode(MODE.DOOR)
+			elif event.is_action_pressed(&"editModeOther"): modes.setMode(MODE.OTHER)
+			elif event.is_action_pressed(&"editObjectSearch"): otherObjects.objectSearch.grab_focus()
+			elif event.is_action_pressed(&"editOpenSettings"): _toggleSettingsMenu(true)
+			elif event.is_action_pressed(&"editNew"): Saving.confirmAction = Saving.ACTION.NONE; Saving.new()
+			elif event.is_action_pressed(&"editOpen"): Saving.open()
+			elif event.is_action_pressed(&"editSave"): Saving.confirmAction = Saving.ACTION.NONE; Saving.save()
+			elif event.is_action_pressed(&"editSaveAs"):
+				Saving.confirmAction = Saving.ACTION.NONE
+				if OS.has_feature('web'): Saving.save()
+				else: Saving.saveAs()
+			elif event.is_action_pressed(&"editExport"): pass
+			elif event.is_action_pressed(&"editHome"): home()
+			elif event.is_action_pressed(&"editCopy"): multiselect.copySelection()
+			elif event.is_action_pressed(&"editCut"): multiselect.copySelection(); multiselect.delete()
+			elif event.is_action_pressed(&"editPaste") and multiselect.clipboard != []: modes.setMode(MODE.PASTE)
+			elif event.is_action_pressed(&"editUndo"): Changes.undo()
+			elif event.is_action_pressed(&"editRedo"): Changes.redo()
+			elif event.is_action_pressed(&"editDrag"):
+				if focusDialog.componentFocused: startPositionDrag(focusDialog.componentFocused)
+				elif focusDialog.focused: startPositionDrag(focusDialog.focused)
+			elif event.is_action_pressed(&"editDelete"): multiselect.delete()
 			match event.keycode:
-				KEY_ESCAPE:
-					if Input.is_key_pressed(KEY_SHIFT):
-						_toggleSettingsMenu(true)
-					else:
-						modes.setMode(MODE.SELECT)
-						focusDialog.defocus()
-						componentDragged = null
-						multiselect.deselect()
-				KEY_T: modes.setMode(MODE.TILE)
-				KEY_B: modes.setMode(MODE.KEY)
-				KEY_D: modes.setMode(MODE.DOOR)
-				KEY_S:
-					if Input.is_key_pressed(KEY_CTRL):
-						Saving.confirmAction = Saving.ACTION.NONE
-						if OS.has_feature('web'): Saving.save()
-						else:
-							if Input.is_key_pressed(KEY_SHIFT): Saving.saveAs()
-							else: Saving.save()
-					else: otherObjects.objectSearch.grab_focus()
-				KEY_Z: if Input.is_key_pressed(KEY_CTRL): Changes.undo()
-				KEY_Y: if Input.is_key_pressed(KEY_CTRL): Changes.redo()
-				KEY_C: if Input.is_key_pressed(KEY_CTRL): multiselect.copySelection()
-				KEY_V: if Input.is_key_pressed(KEY_CTRL) and multiselect.clipboard != []: modes.setMode(MODE.PASTE)
-				KEY_X:
-					if Input.is_key_pressed(KEY_CTRL): multiselect.copySelection(); multiselect.delete()
-					else: modes.setMode(MODE.OTHER)
-				KEY_O: if Game.playState != Game.PLAY_STATE.EDIT: Game.stopTest()
-				KEY_M:
-					if focusDialog.componentFocused: startPositionDrag(focusDialog.componentFocused)
-					elif focusDialog.focused: startPositionDrag(focusDialog.focused)
-				KEY_H: home()
-				KEY_DELETE: multiselect.delete()
 				KEY_TAB: grab_focus()
 				KEY_F2: takeScreenshot()
 

@@ -47,7 +47,7 @@ corner_detail = 5
 [sub_resource type="Theme" id="Theme_dkncv"]
 ConflictedHotkeySettingButton/base_type = &"RadioButtonText"
 ConflictedHotkeySettingButton/styles/normal = SubResource("StyleBoxFlat_dkncv")
-MarginContainer/constants/margin_bottom = 0
+MarginContainer/constants/margin_bottom = 8
 MarginContainer/constants/margin_left = 32
 MarginContainer/constants/margin_right = 0
 MarginContainer/constants/margin_top = 0
@@ -152,83 +152,193 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="c" type="VBoxContainer" parent="c/editorSettings"]
+[node name="c2" type="ScrollContainer" parent="c/editorSettings"]
 layout_mode = 2
 
-[node name="l" type="Label" parent="c/editorSettings/c"]
+[node name="c" type="VBoxContainer" parent="c/editorSettings/c2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="l" type="Label" parent="c/editorSettings/c2/c"]
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
-text = "Miscellanious"
+text = "Miscellaneous"
 label_settings = SubResource("LabelSettings_tyaol")
 vertical_alignment = 2
 
-[node name="fileDialogWorkaroundCont" type="HBoxContainer" parent="c/editorSettings/c"]
+[node name="fileDialogWorkaroundCont" type="HBoxContainer" parent="c/editorSettings/c2/c"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="fileDialogWorkaround" type="CheckBox" parent="c/editorSettings/c/fileDialogWorkaroundCont"]
+[node name="fileDialogWorkaround" type="CheckBox" parent="c/editorSettings/c2/c/fileDialogWorkaroundCont"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "File Dialog Workaround"
 
-[node name="clarifier" type="TextureRect" parent="c/editorSettings/c/fileDialogWorkaroundCont"]
+[node name="clarifier" type="TextureRect" parent="c/editorSettings/c2/c/fileDialogWorkaroundCont"]
 layout_mode = 2
 size_flags_vertical = 0
 tooltip_text = "Uses godot's built-in file dialog instead of the OS native one. If file dialogs aren't opening correctly (eg. Save As does nothing), turn this on."
 texture = ExtResource("5_iswfj")
 
-[node name="fullscreen" type="CheckBox" parent="c/editorSettings/c"]
+[node name="fullscreen" type="CheckBox" parent="c/editorSettings/c2/c"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 text = "Enable Fullscreen (in editor)"
 
-[node name="c" type="HBoxContainer" parent="c/editorSettings/c"]
+[node name="c" type="HBoxContainer" parent="c/editorSettings/c2/c"]
 layout_mode = 2
 
-[node name="l" type="Label" parent="c/editorSettings/c/c"]
+[node name="l" type="Label" parent="c/editorSettings/c2/c/c"]
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 text = "Hotkeys"
 label_settings = SubResource("LabelSettings_tyaol")
 vertical_alignment = 2
 
-[node name="clarifier" type="TextureRect" parent="c/editorSettings/c/c"]
+[node name="clarifier" type="TextureRect" parent="c/editorSettings/c2/c/c"]
 layout_mode = 2
 size_flags_vertical = 0
-tooltip_text = "Indents represent a context in which indented hotkeys are active and take priority over unindented ones."
+tooltip_text = "Indents represent a context in which indented hotkeys are active and take priority over unindented ones.
+Otherwise, earlier listed hotkeys take priority."
 texture = ExtResource("5_iswfj")
 
-[node name="hotkeys" type="VBoxContainer" parent="c/editorSettings/c"]
+[node name="hotkeys" type="VBoxContainer" parent="c/editorSettings/c2/c"]
 layout_mode = 2
 theme = SubResource("Theme_dkncv")
 
-[node name="editStartPlaytest" parent="c/editorSettings/c/hotkeys" instance=ExtResource("6_dkncv")]
+[node name="editStartPlaytest" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
 layout_mode = 2
 label = "Start Playtest"
 action = &"editStartPlaytest"
 
-[node name="l" type="Label" parent="c/editorSettings/c/hotkeys"]
+[node name="editStartPlaytestFromState" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Start Playtest From Latest Spawn"
+action = &"editStartPlaytestFromState"
+
+[node name="l" type="Label" parent="c/editorSettings/c2/c/hotkeys"]
 layout_mode = 2
 text = "Playtesting"
 label_settings = SubResource("LabelSettings_tyaol")
 vertical_alignment = 2
 
-[node name="c" type="MarginContainer" parent="c/editorSettings/c/hotkeys"]
+[node name="c" type="MarginContainer" parent="c/editorSettings/c2/c/hotkeys"]
 layout_mode = 2
 
-[node name="c" type="VBoxContainer" parent="c/editorSettings/c/hotkeys/c"]
+[node name="c" type="VBoxContainer" parent="c/editorSettings/c2/c/hotkeys/c"]
 layout_mode = 2
 
-[node name="editPausePlaytest" parent="c/editorSettings/c/hotkeys/c/c" instance=ExtResource("6_dkncv")]
+[node name="editPausePlaytest" parent="c/editorSettings/c2/c/hotkeys/c/c" instance=ExtResource("6_dkncv")]
 layout_mode = 2
 label = "Pause Playtest"
 action = &"editPausePlaytest"
 
-[node name="editStopPlaytest" parent="c/editorSettings/c/hotkeys/c/c" instance=ExtResource("6_dkncv")]
+[node name="editStopPlaytest" parent="c/editorSettings/c2/c/hotkeys/c/c" instance=ExtResource("6_dkncv")]
 layout_mode = 2
 label = "Stop Playtest"
 action = &"editStopPlaytest"
+
+[node name="editModeSelect" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Select Mode"
+action = &"editModeSelect"
+
+[node name="editModeTile" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Tile Mode"
+action = &"editModeTile"
+
+[node name="editModeKey" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Key Mode"
+action = &"editModeKey"
+
+[node name="editModeDoor" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Door Mode"
+action = &"editModeDoor"
+
+[node name="editModeOther" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Other Objects Mode"
+action = &"editModeOther"
+
+[node name="editObjectSearch" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Search Other Objects"
+action = &"editObjectSearch"
+
+[node name="editOpenSettings" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Open Settings"
+action = &"editOpenSettings"
+
+[node name="editNew" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "New Puzzle"
+action = &"editNew"
+
+[node name="editOpen" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Open Puzzle"
+action = &"editOpen"
+
+[node name="editSave" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Save Puzzle"
+action = &"editSave"
+
+[node name="editSaveAs" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Save Puzzle As"
+action = &"editSaveAs"
+
+[node name="editExport" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Export Puzzle"
+action = &"editExport"
+
+[node name="editHome" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Reset Camera"
+action = &"editHome"
+
+[node name="editCopy" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Copy Component(s)"
+action = &"editCopy"
+
+[node name="editCut" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Cut Component(s)"
+action = &"editCut"
+
+[node name="editPaste" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Paste Component(s)"
+action = &"editPaste"
+
+[node name="editUndo" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Undo"
+action = &"editUndo"
+
+[node name="editRedo" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Redo"
+action = &"editRedo"
+
+[node name="editDrag" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Drag Focused Component"
+action = &"editDrag"
+
+[node name="editDelete" parent="c/editorSettings/c2/c/hotkeys" instance=ExtResource("6_dkncv")]
+layout_mode = 2
+label = "Delete Focused Component"
+action = &"editDelete"
 
 [node name="gameSettings" parent="c" instance=ExtResource("6_tyaol")]
 unique_name_in_owner = true
@@ -242,5 +352,5 @@ toneButtonGroup = SubResource("ButtonGroup_tyaol")
 [connection signal="text_changed" from="c/levelSettings/c/c/levelName" to="." method="_levelNameSet"]
 [connection signal="focus_exited" from="c/levelSettings/c/c/levelAuthor" to="." method="_defocus"]
 [connection signal="text_changed" from="c/levelSettings/c/c/levelAuthor" to="." method="_levelAuthorSet"]
-[connection signal="toggled" from="c/editorSettings/c/fileDialogWorkaroundCont/fileDialogWorkaround" to="." method="_fileDialogWorkaroundSet"]
-[connection signal="toggled" from="c/editorSettings/c/fullscreen" to="." method="_fullscreenSet"]
+[connection signal="toggled" from="c/editorSettings/c2/c/fileDialogWorkaroundCont/fileDialogWorkaround" to="." method="_fileDialogWorkaroundSet"]
+[connection signal="toggled" from="c/editorSettings/c2/c/fullscreen" to="." method="_fullscreenSet"]

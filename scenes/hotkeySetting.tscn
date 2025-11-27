@@ -6,20 +6,22 @@
 
 [node name="hotkeySetting" type="HBoxContainer" groups=["hotkeySetting"]]
 custom_minimum_size = Vector2(0, 30)
-offset_right = 269.0
-offset_bottom = 21.0
+offset_right = 273.0
+offset_bottom = 34.0
 script = ExtResource("1_yo22g")
 label = "label"
 
 [node name="label" type="Label" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.7490196, 0.7490196, 0.7490196, 1)
 text = "label"
 
 [node name="c" type="Control" parent="."]
 clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 1
 
 [node name="buttons" type="HBoxContainer" parent="c"]
 unique_name_in_owner = true
@@ -37,13 +39,17 @@ alignment = 2
 
 [node name="add" type="Button" parent="c/buttons"]
 layout_mode = 2
+mouse_filter = 1
 icon = ExtResource("3_qjjgt")
 
 [node name="reset" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 1
 disabled = true
 icon = ExtResource("4_j64qt")
 
+[connection signal="mouse_entered" from="." to="." method="_hover"]
+[connection signal="mouse_exited" from="." to="." method="_unhover"]
 [connection signal="pressed" from="c/buttons/add" to="." method="_add"]
 [connection signal="pressed" from="reset" to="." method="_reset"]

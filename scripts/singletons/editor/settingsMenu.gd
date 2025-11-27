@@ -70,6 +70,7 @@ func opened() -> void:
 	for setting in get_tree().get_nodes_in_group("hotkeySetting"):
 		InputMap.action_erase_events(setting.action)
 		setting._reset(configFile.get_value("editor", "hotkey_"+setting.action, setting.default))
+		for button in setting.buttons: button.check()
 	%gameSettings.opened(configFile)
 
 func closed() -> void:

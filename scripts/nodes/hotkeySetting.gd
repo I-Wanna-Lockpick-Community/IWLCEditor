@@ -17,6 +17,9 @@ func _ready() -> void:
 		%buttons.add_child(button)
 		buttons.append(button)
 
+func _hover() -> void: %label.add_theme_color_override("font_color", Color("#ffffff"))
+func _unhover() -> void: %label.add_theme_color_override("font_color", Color("#bfbfbf"))
+
 func _add():
 	var button:HotkeySettingButton = HotkeySettingButton.new(self)
 	button._startSet()
@@ -59,6 +62,7 @@ class HotkeySettingButton extends Button:
 		theme_type_variation = &"RadioButtonText"
 		custom_minimum_size.x = 150
 		toggle_mode = true
+		mouse_filter = Control.MOUSE_FILTER_PASS
 
 	func _ready() -> void:
 		mouse_entered.connect(func(): if !setting: text = "(RMB to remove)")
