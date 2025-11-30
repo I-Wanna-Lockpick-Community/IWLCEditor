@@ -9,11 +9,12 @@ const DEFAULT_MATCHES:Array[String] = [
 	"Q", "W", "E", "R", "T", "A", "S", "D", "F", "G", "Z", "X", "V", "B", "QW", "EQ", "RQ", "DQ", "FQ", "EW", "RW", "AW", "ER"
 ]
 
+static var matches:Array[String] = []
+
 func _ready() -> void:
 	columns = 8
 	options = range(Game.COLORS)
 	buttonType = ColorQuickSettingButton
-	matches.assign(DEFAULT_MATCHES)
 	super()
 
 func changedMods() -> void:

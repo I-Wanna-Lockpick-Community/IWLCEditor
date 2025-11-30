@@ -117,7 +117,8 @@ func receiveKey(event:InputEvent) -> bool:
 			elif Editor.eventIs(event, &"focusRemoteLockPainted"): _frozenSet(!main.focused.painted)
 			else: return false
 		else:
-			if Editor.eventIs(event, &"editDelete"):
+			if Editor.eventIs(event, &"quicksetLockSize"): editor.quickSet.startQuick(&"quicksetLockSize", main.componentFocused)
+			elif Editor.eventIs(event, &"editDelete"):
 				main.focused.removeLock(main.componentFocused.index)
 				if len(main.focused.locks) != 0: main.focusComponent(main.focused.locks[-1])
 				else: main.focus(main.focused)
@@ -183,12 +184,15 @@ func _spendSelected() -> void:
 func _lockConfigurationSelected(option:ConfigurationSelector.OPTION) -> void:
 	if main.componentFocused is not Lock: return
 	var lock:GameComponent = main.componentFocused
+	var availableConfigurations:Array[Array] = lock.getAvailableConfigurations()
 	match option:
 		ConfigurationSelector.OPTION.SpecificA:
-			var configuration:Array = lock.getAvailableConfigurations()[0]
+			if len(availableConfigurations) < 1: return
+			var configuration:Array = availableConfigurations[0]
 			lock._comboDoorConfigurationChanged(configuration[0], configuration[1])
 		ConfigurationSelector.OPTION.SpecificB:
-			var configuration:Array = lock.getAvailableConfigurations()[1]
+			if len(availableConfigurations) < 2: return
+			var configuration:Array = availableConfigurations[1]
 			lock._comboDoorConfigurationChanged(configuration[0], configuration[1])
 		ConfigurationSelector.OPTION.AnyS: lock._comboDoorConfigurationChanged(Lock.SIZE_TYPE.AnyS)
 		ConfigurationSelector.OPTION.AnyH: lock._comboDoorConfigurationChanged(Lock.SIZE_TYPE.AnyH)

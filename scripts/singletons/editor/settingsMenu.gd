@@ -72,7 +72,7 @@ func opened() -> void:
 		setting._reset(configFile.get_value("editor", "hotkey_"+setting.action, setting.default))
 		for button in setting.buttons: button.check()
 	%colorQuicksetSetting.setMatches(configFile.get_value("editor", "quicksetColorMatches", ColorQuicksetSetting.DEFAULT_MATCHES.duplicate()))
-	for button in %colorQuicksetSetting.buttons: button.check()
+	%lockSizeQuicksetSetting.setMatches(configFile.get_value("editor", "quicksetLockSizeMatches", LockSizeQuicksetSetting.DEFAULT_MATCHES.duplicate()))
 	%gameSettings.opened(configFile)
 
 func closed() -> void:
@@ -81,6 +81,7 @@ func closed() -> void:
 	for setting in get_tree().get_nodes_in_group("hotkeySetting"):
 		configFile.set_value("editor", "hotkey_"+setting.action, InputMap.action_get_events(setting.action))
 	configFile.set_value("editor", "quicksetColorMatches", ColorQuicksetSetting.matches)
+	configFile.set_value("editor", "quicksetLockSizeMatches", LockSizeQuicksetSetting.matches)
 	%gameSettings.closed(configFile)
 	configFile.save("user://config.ini")
 

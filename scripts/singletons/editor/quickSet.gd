@@ -26,20 +26,27 @@ func updateText() -> void:
 	text = "Quickset "
 	match quickType:
 		&"quicksetColor": text += "Color: "
+		&"quicksetLockSize": text += "Lock Size: "
 	text += input
 
 func applyOrCancel() -> void:
 	match quickType:
 		&"quicksetColor":
-			var sorted = input.split()
-			sorted.sort()
-			var found:int = ColorQuicksetSetting.matches.find("".join(sorted))
+			var found:int = findInputIn(ColorQuicksetSetting.matches)
 			if found in Mods.colors():
 				match component.get_script():
 					KeyBulk: editor.focusDialog.keyDialog._keyColorSelected(found)
 					Door, Lock: editor.focusDialog.doorDialog._doorColorSelected(found)
 					KeyCounterElement: editor.focusDialog.keyCounterDialog._keyCounterColorSelected(found)
+		&"quicksetLockSize":
+			var found:int = findInputIn(LockSizeQuicksetSetting.matches)
+			if found != -1: editor.focusDialog.doorDialog._lockConfigurationSelected(found)
 	visible = false
 	%explainText.visible = true
 	quickType = &""
 	component = null
+
+func findInputIn(matches:Array[String]) -> int:
+	var sorted = input.split()
+	sorted.sort()
+	return matches.find("".join(sorted))

@@ -8,9 +8,8 @@ var options:Array[Variant] = []
 var buttons:Array[QuicksetSettingButton] = []
 var reset:Button
 
-static var matches:Array[String] = []
-
 func _ready() -> void:
+	self.matches.assign(self.DEFAULT_MATCHES)
 	for value in options:
 		var button = buttonType.new(value, self)
 		add_child(button)
@@ -22,12 +21,12 @@ func _ready() -> void:
 	get_parent().add_child.call_deferred(reset)
 
 func setMatches(to:Array[String]=self.DEFAULT_MATCHES.duplicate()) -> void:
-	matches = to
-	for button in buttons: button.setText()
+	self.matches = to
+	for button in buttons: button.setText(); button.check()
 	updateReset()
 
 func updateReset() -> void:
-	reset.disabled = matches == self.DEFAULT_MATCHES
+	reset.disabled = self.matches == self.DEFAULT_MATCHES
 
 class QuicksetSettingButton extends Button:
 	@onready var editor:Editor = get_node("/root/editor")
