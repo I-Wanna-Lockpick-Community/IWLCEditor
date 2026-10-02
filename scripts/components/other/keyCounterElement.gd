@@ -66,7 +66,7 @@ func _draw() -> void:
 		textDrawer.addNumber(Game.player.key[color], TEXT_COLOR)
 		if M.ex(Game.player.glisten[color]):
 			textDrawer.addString("(", TEXT_COLOR)
-			textDrawer.addNumber(Game.player.glistening[color], TEXT_COLOR)
+			textDrawer.addNumber(Game.player.glisten[color], TEXT_COLOR)
 			textDrawer.addString(")", TEXT_COLOR)
 	else: textDrawer.addString("0", TEXT_COLOR)
 	textDrawer.evaluate()

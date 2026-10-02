@@ -203,6 +203,11 @@ static var mods:Dictionary[StringName, Mod] = {
 		"Adds four elemental colours that interact with locks. Added by BerryGo",
 		{&"ElementalColorUsed": ColorProblem.new([C.olors.FIRE, C.olors.WATER, C.olors.EARTH, C.olors.AIR], "Elemental Color Used")},
 		false, "Behaviour of elemental locks on doors with pure components may change in the future"
+	),
+	&"SulphurColor": Mod.new(
+		"Sulphur Color",
+		"Adds the Sulphur color. Sulphur keycount changes by 1 towards zero after a door open. Added by s1nblitz.",
+		{&"SulphurColorUsed": ColorProblem.new([C.olors.SULPHUR], "Sulphur Color Used")}
 	)
 }
 
@@ -313,6 +318,7 @@ func colors() -> Array[C.olors]:
 	if active(&"CosmicColor"): array.append(C.olors.COSMIC)
 	if active(&"ErrorColor"): array.append(C.olors.ERROR)
 	if active(&"ElementalColors"): array.append_array([C.olors.FIRE, C.olors.WATER, C.olors.EARTH, C.olors.AIR])
+	if active(&"SulphurColor"): array.append(C.olors.SULPHUR)
 	return array
 
 ## wraps

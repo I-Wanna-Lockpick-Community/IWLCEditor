@@ -611,6 +611,8 @@ func tryOpen(player:Player) -> void:
 			STAR_STATE.UNSTARRED: if !checkCanOpen(player): return
 		var multiplier:PackedInt64Array = getOpenMultiplier() if starred == STAR_STATE.UNSTARRED else starredOpenMultiplier
 		applyCosts(player, multiplier)
+		# Reduce Sulphur keys after door open
+		player.changeKeys(C.olors.SULPHUR, M.sub(player.key[C.olors.SULPHUR], M.denomclamp(player.key[C.olors.SULPHUR])))
 		GameChanges.applyChange(GameChanges.newPropertyChange(self, &"gameCopies", M.sub(gameCopies, M.without(M.times(ipow() if starred == STAR_STATE.UNSTARRED else starredIpow, multiplier), infCopies))))
 	
 	if gameFrozen or gameCrumbled or gamePainted: AudioManager.play(preload("res://resources/sounds/door/deaura.wav"))

@@ -400,6 +400,12 @@ func implies(a:PackedInt64Array, b:PackedInt64Array) -> bool:
 func simplies(a:PackedInt64Array, b:PackedInt64Array) -> bool:
 	return (a[0] == 0 || sign(a[0]) == sign(b[0])) && (a[1] == 0 || sign(a[1]) == sign(b[1]))
 
+## returns the lower number between the denominator and the absolute real/imaginary component, with the original sign of that component
+func denomclamp(n:PackedInt64Array) -> PackedInt64Array:
+	match system:
+		SYSTEM.COMPLEX: return axis(n)
+		SYSTEM.FRACTIONS, _: return simplify([clamp(n[0], -n[2], n[2]), clamp(n[1], -n[2], n[2]), n[2]])
+
 # deciders
 
 ## "exists"
